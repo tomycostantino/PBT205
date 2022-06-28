@@ -14,3 +14,4 @@ class Query:
     # Gets the query from the tracker and prints it out to the screen
     def get_query(self):
         pass
+    
