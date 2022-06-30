@@ -5,54 +5,62 @@ from tkinter.messagebox import askquestion
 from interface.query_ui import QueryUI
 from interface.person_ui import PersonUI
 from interface.tracker_ui import TrackerUI
-from person import Person
-from query import Query
-from tracker import Tracker
 
 
 class RootComponent(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title('Contract Tracing')
+        self.eval('tk::PlaceWindow . center')
         self.geometry('200x100')
         self.resizable(False, False)
+        self.title('Contract Tracing')
         self.protocol('WM_DELETE_WINDOW', self._on_closing)
 
         self._mode = ''
 
-        startup_frame = tk.Frame(self, width=200, height=100)
-        startup_frame.pack(side=tk.TOP, expand=True, fill='both')
+        commands_frame = tk.Frame(self)
+        commands_frame.pack(side=tk.TOP, expand=True, fill='both')
 
-        title_label = tk.Label(startup_frame, text='Start in Mode:', fg='black', font=("Calibri", 14, "bold"))
+        title_label = tk.Label(commands_frame, text='Use it as:', fg='black', font=("Calibri", 14, "bold"))
         title_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
-        person_button = tkmac.Button(startup_frame, text="Person",
-                                     command=lambda: self.on_click('person'))
+        person_button = tkmac.Button(commands_frame, text="Person",
+                                     command=lambda: self._on_click('person'))
         person_button.pack(side=tk.TOP, anchor='center', fill='both')
 
-        query_button = tkmac.Button(startup_frame, text="Query",
-                                    command=lambda: self.on_click('query'))
+        query_button = tkmac.Button(commands_frame, text="Query",
+                                    command=lambda: self._on_click('query'))
         query_button.pack(side=tk.TOP, anchor='center', fill='both')
 
-        tracker_button = tkmac.Button(startup_frame, text='Tracker',
-                                      command=lambda: self.on_click('tracker'))
+        tracker_button = tkmac.Button(commands_frame, text='Tracker',
+                                      command=lambda: self._on_click('tracker'))
         tracker_button.pack(side=tk.TOP, anchor='center', fill='both')
+
+        exit_button = tkmac.Button(commands_frame, text='Exit', height=10, width=10,
+                                   command=self._on_closing)
+        exit_button.pack(side=tk.TOP, anchor='center')
 
     def _update_ui(self):
         self.after(1000, self._update_ui)
 
     def _create_widgets(self):
-        self._top_window = tk.Toplevel(self)
-        self._top_window.protocol('WM_DELETE_WINDOW', self._on_closing)
         self.withdraw()
 
-        # create frame
-        frame = tk.Frame(self._top_window, width=500, height=300)
-        frame.pack(side=tk.TOP, expand=True, fill='both')
+        self._top_window = tk.Toplevel(self)
+        self._top_window.protocol('WM_DELETE_WINDOW', self._on_closing)
 
+        # create frame
+        upper_frame = tk.Frame(self._top_window)
+        upper_frame.pack(side=tk.BOTTOM, expand=True, fill='both')
+        upper_frame.pack_propagate(0)
+
+        return_button = tkmac.Button(upper_frame, text='Return', command=self._back_to_start)
+        return_button.pack(side=tk.BOTTOM, anchor='center', fill='both')
+
+        # create widgets
         if self._mode == 'person':
             ui = PersonUI(self._top_window)
-            ui.pack(side=tk.TOP, expand=True, fill='both')
+            ui.pack(side=tk.BOTTOM, expand=True, fill='both')
 
         elif self._mode == 'query':
             ui = QueryUI(self._top_window)
@@ -70,9 +78,9 @@ class RootComponent(tk.Tk):
 
     def _back_to_start(self):
         self._top_window.destroy()
-        self._top_window.quit()
+        self._top_window.update()
         self.deiconify()
 
-    def on_click(self, mode: str):
+    def _on_click(self, mode: str):
         self._mode = mode
         self._create_widgets()
