@@ -8,10 +8,10 @@ class PersonUI(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        upper_frame = tk.Frame(self, width=200, height=100)
+        upper_frame = tk.Frame(self, width=200, height=75)
         upper_frame.pack(side=tk.TOP, expand=True, fill='both')
 
-        lower_frame = tk.Frame(self, width=200, height=100)
+        lower_frame = tk.Frame(self, width=200, height=75)
         lower_frame.pack(side=tk.BOTTOM, expand=True, fill='both')
 
         label = tk.Label(upper_frame, text='You are in Person mode', fg='black', font=("Calibri", 14, "bold"))
@@ -26,13 +26,5 @@ class PersonUI(tk.Frame):
         submit_button = tkmac.Button(upper_frame, text='Submit', command=self._submit)
         submit_button.pack(side=tk.TOP, anchor='center', fill='both')
 
-        return_button = tkmac.Button(lower_frame, text='Return', command=self._return_home)
-        return_button.pack(side=tk.TOP, anchor='center', fill='both')
-
     def _submit(self):
         print('Person created')
-
-    def _return_home(self):
-        #self.withdraw()
-        #self.quit()
-        pass

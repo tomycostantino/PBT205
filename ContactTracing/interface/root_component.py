@@ -49,18 +49,10 @@ class RootComponent(tk.Tk):
         self._top_window = tk.Toplevel(self)
         self._top_window.protocol('WM_DELETE_WINDOW', self._on_closing)
 
-        # create frame
-        upper_frame = tk.Frame(self._top_window)
-        upper_frame.pack(side=tk.BOTTOM, expand=True, fill='both')
-        upper_frame.pack_propagate(0)
-
-        return_button = tkmac.Button(upper_frame, text='Return', command=self._back_to_start)
-        return_button.pack(side=tk.BOTTOM, anchor='center', fill='both')
-
         # create widgets
         if self._mode == 'person':
             ui = PersonUI(self._top_window)
-            ui.pack(side=tk.BOTTOM, expand=True, fill='both')
+            ui.pack(side=tk.TOP, expand=True, fill='both')
 
         elif self._mode == 'query':
             ui = QueryUI(self._top_window)
@@ -70,6 +62,13 @@ class RootComponent(tk.Tk):
             ui = TrackerUI(self._top_window)
             ui.pack(side=tk.TOP, expand=True, fill='both')
 
+        # create frame
+        lower_frame = tk.Frame(self._top_window)
+        lower_frame.pack(side=tk.TOP, expand=True, fill='both')
+
+        return_button = tkmac.Button(lower_frame, text='Return', command=self._back_to_start)
+        return_button.pack(side=tk.TOP, anchor='center', fill='both')
+
     def _on_closing(self):
         result = askquestion('Quit', 'Do you want to quit?')
         if result == 'yes':
@@ -77,7 +76,7 @@ class RootComponent(tk.Tk):
             self.quit()
 
     def _back_to_start(self):
-        self._top_window.destroy()
+        self._top_window.withdraw()
         self._top_window.update()
         self.deiconify()
 
