@@ -1,6 +1,8 @@
 import tkinter as tk
 import tkmacosx as tkmac
 
+from interface.styling import *
+
 
 class QueryUI(tk.Frame):
     def __init__(self, *args, **kwargs):
@@ -12,18 +14,18 @@ class QueryUI(tk.Frame):
         lower_frame = tk.Frame(self, width=200, height=75)
         lower_frame.pack(side=tk.BOTTOM, expand=True, fill='both')
 
-        label = tk.Label(upper_frame, text='You are in Query mode', fg='black', font=("Calibri", 14, "bold"))
+        label = tk.Label(upper_frame, text='You are in Query mode', fg='black', font=HEADER)
         label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
         name_label = tk.Label(upper_frame, text='Please enter name of the \n'
-                                                'person you want to query:', fg='black', font=("Calibri", 14, "bold"))
+                                                'person you want to query:', fg='black', font=LABEL)
         name_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
-        full_name = tk.Text(upper_frame, height=4, width=40)
+        full_name = tk.Text(upper_frame, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
         full_name.pack(side=tk.TOP)
 
         submit_button = tkmac.Button(upper_frame, text='Submit', command=self._submit)
-        submit_button.pack(side=tk.TOP, anchor='center', fill='both')
+        submit_button.pack(side=tk.TOP, anchor='center')
 
     def _submit(self):
         print('Query created')

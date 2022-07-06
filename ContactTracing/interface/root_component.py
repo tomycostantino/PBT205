@@ -47,6 +47,7 @@ class RootComponent(tk.Tk):
         self.withdraw()
 
         self._top_window = tk.Toplevel(self)
+        self._top_window.geometry('250x250')
         self._top_window.protocol('WM_DELETE_WINDOW', self._on_closing)
 
         # create widgets
@@ -66,8 +67,8 @@ class RootComponent(tk.Tk):
         lower_frame = tk.Frame(self._top_window)
         lower_frame.pack(side=tk.TOP, expand=True, fill='both')
 
-        return_button = tkmac.Button(lower_frame, text='Return', command=self._back_to_start)
-        return_button.pack(side=tk.TOP, anchor='center', fill='both')
+        return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_start)
+        return_button.pack(side=tk.TOP, anchor='center')
 
     def _on_closing(self):
         result = askquestion('Quit', 'Do you want to quit?')
