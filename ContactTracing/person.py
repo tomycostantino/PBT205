@@ -4,12 +4,13 @@ from message_broker import MessageBroker
 
 
 class Person:
-    def __init__(self, mw_endpoint: str = '', personId: str = '', movement_speed: str = '', grid_size: tuple = (10, 10)):
-        self._mw_endpoint = mw_endpoint
+    def __init__(self, personId: str = '', movement_speed: str = '', grid_size: tuple = (10, 10)):
         self._personId = personId
         self._movement_speed = float(movement_speed)
         self._grid_size = grid_size
-        #self._msgBroker = MessageBroker()
+
+        endpoint = 'amqps://bueyyocn:Z4EAvfK6ZD5HTAlSPdrmrBfLcSzSX2Hb@vulture.rmq.cloudamqp.com/bueyyocn'
+        self._msgBroker = MessageBroker(endpoint)
 
     def run(self):
         self._send_location()
@@ -20,9 +21,9 @@ class Person:
         self._generate_position()
         print(self._personId)
         print(self._actual_position)
-
+        message = str(self._personId) + ',' + str(self._actual_position)
         # Do stuff here to send it to middleware it would be something like:
-        # self._msgBroker.basic_publish(self._actual_position, self._personId)
+        self._msgBroker.basic_publish('position', message)
 
     # Will generate a new position to be sent to the broker
     def _generate_position(self):

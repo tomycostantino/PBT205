@@ -2,17 +2,17 @@ from message_broker import MessageBroker
 
 
 class Tracker:
-    def __init__(self, mw_endpoint: str = ''):
-        self._mw_endpoint = mw_endpoint
-        self._msgBroker = MessageBroker()
+    def __init__(self):
+        endpoint = 'amqps://bueyyocn:Z4EAvfK6ZD5HTAlSPdrmrBfLcSzSX2Hb@vulture.rmq.cloudamqp.com/bueyyocn'
+        self._msgBroker = MessageBroker(endpoint)
 
-    def subscribe(self, topic: str):
+    def _subscribe(self, topic: str):
         if topic == 'position':
-            # Do stuff here to read from middleware and update UI
-            pass
+            self._msgBroker.subscribe('position')
 
         elif topic == 'query':
-            # Do stuff here to read from middleware and update UI
-            pass
+            self._msgBroker.subscribe('query')
 
-
+    def run(self):
+        self._subscribe('position')
+        self._subscribe('query')

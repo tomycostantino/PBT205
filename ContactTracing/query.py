@@ -5,7 +5,9 @@ class Query:
     def __init__(self, mw_endpoint: str = '', personId: str = ''):
         self._mw_endpoint = mw_endpoint
         self._personId = personId
-        self._msgBroker = MessageBroker()
+
+        endpoint = 'amqps://rozfefzx:LCBohEjCaUgnWVrHTroExcQS1vp2CmGU@vulture.rmq.cloudamqp.com/rozfefzx'
+        self._msgBroker = MessageBroker(endpoint)
 
     # Publishes the identifier of the person asked for
     def publish_identifier(self):
