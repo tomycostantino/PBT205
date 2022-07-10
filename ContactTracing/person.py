@@ -1,3 +1,4 @@
+# Tomas Costantino - A00042881
 import random
 import threading
 
@@ -33,6 +34,7 @@ class Person:
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
+        # Split date and time to have them separated
         dt = dt_string.split(' ')
         self._actual_position['date'] = dt[0]
         self._actual_position['time'] = dt[1]
@@ -43,5 +45,5 @@ class Person:
     def _generate_position(self):
         x = random.randint(0, self._grid_size[0])
         y = random.randint(0, self._grid_size[1])
-        new_position = str(x) + ',' + str(y)
+        new_position = str(x) + ', ' + str(y)
         self._actual_position['position'] = new_position

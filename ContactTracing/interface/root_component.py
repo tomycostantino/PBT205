@@ -1,3 +1,4 @@
+# Tomas Costantino - A00042881
 import tkinter as tk
 import tkmacosx as tkmac
 
@@ -5,26 +6,31 @@ from tkinter.messagebox import askquestion
 from interface.query_ui import QueryUI
 from interface.person_ui import PersonUI
 from interface.tracker_ui import TrackerUI
-from interface.styling import *
 
 
 class RootComponent(tk.Tk):
     def __init__(self):
         super().__init__()
+
+        # Configure main window
         self.eval('tk::PlaceWindow . center')
         self.geometry('200x100')
         self.resizable(False, False)
         self.title('Contract Tracing')
         self.protocol('WM_DELETE_WINDOW', self._on_closing)
 
+        # Know the mode to use so it can interchange between Person, Query, and Tracker UIs
         self._mode = ''
 
+        # Create commands frame
         commands_frame = tk.Frame(self)
         commands_frame.pack(side=tk.TOP, expand=True, fill='both')
 
+        # Title
         title_label = tk.Label(commands_frame, text='Use it as:', fg='black', font=("Calibri", 14, "bold"))
         title_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
+        # Choices
         person_button = tkmac.Button(commands_frame, text="Person",
                                      command=lambda: self._on_click('person'))
         person_button.pack(side=tk.TOP, anchor='center', fill='both')
@@ -41,9 +47,7 @@ class RootComponent(tk.Tk):
                                    command=self._on_closing)
         exit_button.pack(side=tk.TOP, anchor='center')
 
-    def _update_ui(self):
-        self.after(1000, self._update_ui)
-
+    # Change interfaces as users interact with the application
     def _create_widgets(self):
         self.withdraw()
 
@@ -51,7 +55,7 @@ class RootComponent(tk.Tk):
         self._top_window.geometry('250x350')
         self._top_window.protocol('WM_DELETE_WINDOW', self._on_closing)
 
-        # create widgets
+        # create widgets based on the chosen mode
         if self._mode == 'person':
             ui = PersonUI(self._top_window)
             ui.pack(side=tk.TOP, expand=True, fill='both')
@@ -64,24 +68,27 @@ class RootComponent(tk.Tk):
             ui = TrackerUI(self._top_window)
             ui.pack(side=tk.TOP, expand=True, fill='both')
 
-        # create frame
+        # create frame for return button
         lower_frame = tk.Frame(self._top_window)
         lower_frame.pack(side=tk.TOP, expand=True, fill='both')
 
         return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_start)
         return_button.pack(side=tk.TOP, anchor='center')
 
+    # Pop up a window to ask if the user really wants to exit
     def _on_closing(self):
         result = askquestion('Quit', 'Do you want to quit?')
         if result == 'yes':
             self.destroy()
             self.quit()
 
+    # Return home button
     def _back_to_start(self):
         self._top_window.withdraw()
         self._top_window.update()
         self.deiconify()
 
+    # Change modes and create widgets
     def _on_click(self, mode: str):
         self._mode = mode
         self._create_widgets()

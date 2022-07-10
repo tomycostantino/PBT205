@@ -1,3 +1,4 @@
+# Tomas Costantino - A00042881
 import pika, os, sys
 import json
 '''
@@ -22,6 +23,7 @@ class MessageBroker:
     def basic_publish(self, exchange: str, routing_key: str, message: str):
         self.channel.basic_publish(exchange=exchange, routing_key=routing_key, body=message)
 
+    # Publish a JSON message on the queue, makes it easier when working with that type of data
     def JSON_publish(self, exchange: str, routing_key: str, message: dict):
         self.channel.basic_publish(exchange=exchange, routing_key=routing_key, body=json.dumps(message))
 
@@ -39,7 +41,7 @@ class MessageBroker:
             self._messageQueue = []
             return messages
 
-    # Subscribe to queues
+    # Subscribe to queue
     def subscribe(self, exchange: str, queue_name: str):
         self.channel.queue_bind(exchange=exchange, queue=queue_name)
         self.channel.basic_consume(queue=queue_name, on_message_callback=self._handle_messages, auto_ack=True)
