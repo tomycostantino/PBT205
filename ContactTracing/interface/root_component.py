@@ -5,6 +5,7 @@ from tkinter.messagebox import askquestion
 from interface.query_ui import QueryUI
 from interface.person_ui import PersonUI
 from interface.tracker_ui import TrackerUI
+from interface.styling import *
 
 
 class RootComponent(tk.Tk):
@@ -47,7 +48,7 @@ class RootComponent(tk.Tk):
         self.withdraw()
 
         self._top_window = tk.Toplevel(self)
-        self._top_window.geometry('250x250')
+        self._top_window.geometry('250x350')
         self._top_window.protocol('WM_DELETE_WINDOW', self._on_closing)
 
         # create widgets

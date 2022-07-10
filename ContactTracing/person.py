@@ -23,7 +23,7 @@ class Person:
     # Send new location to the broker so the tracker updates
     def _send_location(self):
 
-        # Kick off the thread to send the location continuosly
+        # Kick off the thread to send the location continuously
         threading.Timer(self._movement_speed, self._send_location).start()
 
         # Generate new position

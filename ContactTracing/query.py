@@ -21,7 +21,7 @@ class Query:
 
         self.get_query()
 
-    # Gets the query from the tracker and prints it out to the screen
+    # Get the query from the tracker and prints it out to the screen
     def get_query(self):
 
         if not self._subscribed:
@@ -30,15 +30,21 @@ class Query:
 
         query_result = None
         counter = 0
+        # Try to retrieve the query ten times and if not possible leave the loop
         while query_result is None and counter < 10:
             query_result = self._queryConsumer.get_messages()
             counter += 1
             print('Waiting for query')
             sleep(1)
 
-        for query in query_result[0].items():
-            print(query)
+        if query_result:
+            for query in query_result[0].items():
+                print(query)
 
+        else:
+            print('No query received')
+
+    # Subscribes to the query response channel
     def _subscribe(self):
         self._subscribed = True
         self._queryConsumer.subscribe('sent_from_tracker', 'query_response')

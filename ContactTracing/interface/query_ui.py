@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkmacosx as tkmac
+import tkinter.messagebox
 
 from query import Query
 from interface.styling import *
@@ -29,6 +30,7 @@ class QueryUI(tk.Frame):
         submit_button.pack(side=tk.TOP, anchor='center')
 
     def _submit(self):
+        tkinter.messagebox.showinfo("Contact Tracing", "Query successfully created")
         query = Query(self._full_name.get('1.0', 'end-1c'))
         query.publish_query()
         self._full_name.delete('1.0', 'end-1c')

@@ -1,7 +1,9 @@
 import tkinter as tk
 import tkmacosx as tkmac
+import tkinter.messagebox
 
 from tracker import Tracker
+from interface.styling import *
 
 
 class TrackerUI(tk.Frame):
@@ -27,6 +29,7 @@ class TrackerUI(tk.Frame):
 
     def _start(self):
         self._tracker.run()
+        tkinter.messagebox.showinfo("Contact Tracing", "Tracker successfully created")
 
     def _search_database(self):
         print('New search')
