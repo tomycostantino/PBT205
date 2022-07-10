@@ -1,4 +1,5 @@
 import threading
+from database import Database
 from threading import Thread
 from message_broker import MessageBroker
 
@@ -19,10 +20,22 @@ class Tracker:
         query_message = self._queryBroker.get_messages()
 
         if position_message:
-            print(position_message)
+            self._update_database(position_message)
 
         elif query_message:
             print(query_message)
+
+    def _update_database(self, messages):
+        db = Database()
+        for message in messages:
+            name = message[0]
+            position = message[1]
+            date = message[2]
+            time = message[3]
+            db.insert_value(name, position, date, time)
+            print(message)
+        db.close()
+        del(db)
 
     def run(self):
         # The functions will be run in parallel so the UI can keep working

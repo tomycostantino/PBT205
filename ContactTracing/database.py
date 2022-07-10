@@ -3,9 +3,18 @@ import sqlite3
 
 class Database:
     def __init__(self):
-        self._db = sqlite3.connect('database.db')
-        self._cursor = self._db.cursor()
+        self._conn = sqlite3.connect('database.db')
+        self._conn.row_factory = sqlite3.Row  # Makes the data retrieved from the database accessible by their column name
+        self._cursor = self._conn.cursor()
+        self._create_tables()
 
-    def insert_value(self, personId: str, time: str, position: tuple):
-        self._cursor.execute("INSERT INTO positions VALUES (?, ?)", (personId, position))
-        self._db.commit()
+    def _create_tables(self):
+        self._cursor.execute("CREATE TABLE IF NOT EXISTS positions (name TEXT, position TEXT, date TEXT, time TEXT)")
+        self._conn.commit()  # Saves the changes
+
+    def insert_value(self, personId: str, position: str, date: str, time: str):
+        self._cursor.execute("INSERT INTO positions VALUES (?, ?, ?, ?)", (personId, position, date, time))
+        self._conn.commit()
+
+    def close(self):
+        self._conn.close()

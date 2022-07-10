@@ -28,8 +28,10 @@ class MessageBroker:
         str_body = str(body, 'utf-8')
         segments = str_body.split(', ')
         name = segments[0]
-        position = segments[1]
-        message = (name, position)
+        position = segments[1] + ', ' + segments[2]
+        date = segments[3]
+        time = segments[4]
+        message = (name, position, date, time)
         self._messageQueue.append(message)
 
     # This function will add return the message queue it has to the tracker when

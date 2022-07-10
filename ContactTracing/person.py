@@ -1,6 +1,8 @@
 import random
 import threading
+
 from message_broker import MessageBroker
+from datetime import datetime
 
 
 class Person:
@@ -19,14 +21,20 @@ class Person:
     def _send_location(self):
         threading.Timer(self._movement_speed, self._send_location).start()
         self._generate_position()
-        print(self._personId)
-        print(self._actual_position)
-        message = str(self._personId) + ',' + str(self._actual_position)
-        # Do stuff here to send it to middleware it would be something like:
+
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+
+        dt = dt_string.split(' ')
+        date = dt[0]
+        time = dt[1]
+
+        message = str(self._personId) + ', ' + str(self._actual_position) + ', ' + date + ', ' + time
+
         self._msgBroker.basic_publish('send_to_tracker', 'position', message)
 
     # Will generate a new position to be sent to the broker
     def _generate_position(self):
         x = random.randint(0, self._grid_size[0])
         y = random.randint(0, self._grid_size[1])
-        self._actual_position = (x, y)
+        self._actual_position = str(x) + ', ' + str(y)

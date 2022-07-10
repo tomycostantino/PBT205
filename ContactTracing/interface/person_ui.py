@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkmacosx as tkmac
+import tkinter.messagebox
 
 from person import Person
 from interface.styling import *
@@ -36,6 +37,17 @@ class PersonUI(tk.Frame):
         submit_button.pack(side=tk.TOP, anchor='center')
 
     def _submit(self, person_id: str, speed: str):
+        # Check for valid entries
+        if len(self._full_name.get('1.0', 'end-1c')) == 0:
+            tkinter.messagebox.showerror("Contact Tracing",  "Insert a name")
+            return
+
+        elif not self._movement_speed.get('1.0', 'end-1c').isnumeric() or \
+                len(self._movement_speed.get('1.0', 'end-1c')) == 0:
+            self._movement_speed.delete('1.0', 'end-1c')
+            tkinter.messagebox.showerror("Contact Tracing",  "Insert a valid movement speed")
+            return
+
         self._full_name.delete('1.0', 'end-1c')
         self._movement_speed.delete('1.0', 'end-1c')
         person = Person(personId=person_id, movement_speed=speed)
