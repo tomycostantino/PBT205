@@ -27,10 +27,12 @@ class Query:
         # If we are not subscribed then subscribe to the query response channel
         if not self._subscribed:
             thread = Thread(target=self._subscribe)
+            thread.daemon = True
             thread.start()
 
         # Try to receive the query
         thread = Thread(target=self._try_to_receive_query)
+        thread.daemon = True
         thread.start()
 
     def _try_to_receive_query(self):

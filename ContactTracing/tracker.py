@@ -19,6 +19,8 @@ class Tracker:
     def _subscribe(self):
         t1 = Thread(target=self._positionBroker.subscribe, args=('send_to_tracker', 'position'))
         t2 = Thread(target=self._queryBroker.subscribe, args=('send_to_tracker', 'query'))
+        t1.daemon = True  # Dies when main thread (only non-daemon thread) exits.
+        t2.daemon = True
         t1.start()
         t2.start()
 
@@ -78,6 +80,9 @@ class Tracker:
         # The functions will be run in parallel so the UI can keep working
         t1 = Thread(target=self._subscribe)
         t2 = Thread(target=self._read_messages)
+
+        t1.daemon = True  # Dies when main thread (only non-daemon thread) exits.
+        t2.daemon = True
 
         t1.start()
         t2.start()

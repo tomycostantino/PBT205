@@ -4,7 +4,7 @@ import threading
 
 from message_broker import MessageBroker
 from datetime import datetime
-
+from threading import Thread
 
 class Person:
     def __init__(self, personId: str = '', movement_speed: str = '', grid_size: tuple = (10, 10)):
@@ -19,7 +19,9 @@ class Person:
         self._actual_position['personId'] = self._personId
 
     def run(self):
-        self._send_location()
+        thread = Thread(target=self._send_location)
+        thread.daemon = True
+        thread.start()
 
     # Send new location to the broker so the tracker updates
     def _send_location(self):
