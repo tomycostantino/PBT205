@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkmacosx as tkmac
 
+from query import Query
 from interface.styling import *
 
 
@@ -21,11 +22,13 @@ class QueryUI(tk.Frame):
                                                 'person you want to query:', fg='black', font=LABEL)
         name_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
-        full_name = tk.Text(upper_frame, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
-        full_name.pack(side=tk.TOP)
+        self._full_name = tk.Text(upper_frame, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
+        self._full_name.pack(side=tk.TOP)
 
         submit_button = tkmac.Button(upper_frame, text='Submit', command=self._submit)
         submit_button.pack(side=tk.TOP, anchor='center')
 
     def _submit(self):
-        print('Query created')
+        query = Query(self._full_name.get('1.0', 'end-1c'))
+        query.publish_query()
+        self._full_name.delete('1.0', 'end-1c')

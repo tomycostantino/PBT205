@@ -16,5 +16,12 @@ class Database:
         self._cursor.execute("INSERT INTO positions VALUES (?, ?, ?, ?)", (personId, position, date, time))
         self._conn.commit()
 
+    def get_query(self, person: str):
+        self._cursor.execute("SELECT * FROM positions WHERE name = ?", (person,))
+        positions = self._cursor.fetchall()
+
+        positions_list = [row for row in positions]
+        return positions_list
+
     def close(self):
         self._conn.close()

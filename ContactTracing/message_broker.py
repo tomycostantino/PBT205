@@ -1,5 +1,5 @@
 import pika, os, sys
-
+import json
 '''
 This class manages the broker interaction required in person, query and tracker components
 '''
@@ -22,17 +22,14 @@ class MessageBroker:
     def basic_publish(self, exchange: str, routing_key: str, message: str):
         self.channel.basic_publish(exchange=exchange, routing_key=routing_key, body=message)
 
+    def JSON_publish(self, exchange: str, routing_key: str, message: dict):
+        self.channel.basic_publish(exchange=exchange, routing_key=routing_key, body=json.dumps(message))
+
     # Handle incoming messages
     # And add them to queue to then get picked up by tracker
     def _handle_messages(self, ch, method, properties, body):
-        str_body = str(body, 'utf-8')
-        segments = str_body.split(', ')
-        name = segments[0]
-        position = segments[1] + ', ' + segments[2]
-        date = segments[3]
-        time = segments[4]
-        message = (name, position, date, time)
-        self._messageQueue.append(message)
+        new_message = json.loads(body)
+        self._messageQueue.append(new_message)
 
     # This function will add return the message queue it has to the tracker when
     # the tracker asks for it
