@@ -2,6 +2,7 @@ import threading
 from database import Database
 from threading import Thread
 from message_broker import MessageBroker
+from time import sleep
 
 
 class Tracker:
@@ -13,7 +14,7 @@ class Tracker:
 
     # Subscribe to the channels
     # Use a thread to run the function in parallel
-    # I created two brokers because they are subscribted to different channels
+    # I created two brokers because they are subscribed to different channels
     def _subscribe(self):
         t1 = Thread(target=self._positionBroker.subscribe, args=('send_to_tracker', 'position'))
         t2 = Thread(target=self._queryBroker.subscribe, args=('send_to_tracker', 'query'))
@@ -43,9 +44,9 @@ class Tracker:
         del db
 
     def _respond_query(self, query):
-        name = query['person']
+        personId = list(query.items())
         db = Database()
-        db_result = db.get_query(name)
+        db_result = db.get_query(str(personId[0][1]))
         db.close()
         del db
 
@@ -55,13 +56,11 @@ class Tracker:
             for row in db_result:
                 results[count] = {'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]}
                 count += 1
-            print(results)
-            self._queryPublisher.JSON_publish('sent_from_tracker', 'query', results)
+            self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', results)
 
         else:
             errorMessage = {'error': 'No results found'}
-            self._queryPublisher.JSON_publish('sent_from_tracker', 'query', errorMessage)
-            print(errorMessage)
+            self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', errorMessage)
 
     def run(self):
         # The functions will be run in parallel so the UI can keep working

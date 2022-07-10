@@ -12,27 +12,34 @@ class Query:
         self._queryPublisher = MessageBroker(endpoint)
         self._queryConsumer = MessageBroker(endpoint)
 
+        self._subscribed = False
+
     # Publishes the identifier of the person asked for
     def publish_query(self):
-        message = {'person': self._personId}
+        message = {'personId': self._personId}
         self._queryPublisher.JSON_publish('send_to_tracker', 'query', message)
-        query_thread = Thread(target=self.get_query)
-        query_thread.start()
+
+        self.get_query()
 
     # Gets the query from the tracker and prints it out to the screen
     def get_query(self):
-        thread = Thread(target=self._subscribe)
-        thread.start()
 
-        query = None
+        if not self._subscribed:
+            thread = Thread(target=self._subscribe)
+            thread.start()
+
+        query_result = None
         counter = 0
-        while query is None and counter < 10:
-            query = self._queryConsumer.get_messages()
+        while query_result is None and counter < 10:
+            query_result = self._queryConsumer.get_messages()
             counter += 1
+            print('Waiting for query')
             sleep(1)
 
-        print(query)
+        for query in query_result[0].items():
+            print(query)
 
     def _subscribe(self):
-        self._queryConsumer.subscribe('sent_from_tracker', 'query')
+        self._subscribed = True
+        self._queryConsumer.subscribe('sent_from_tracker', 'query_response')
     
