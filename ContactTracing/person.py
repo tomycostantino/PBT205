@@ -23,7 +23,7 @@ class Person:
         print(self._actual_position)
         message = str(self._personId) + ',' + str(self._actual_position)
         # Do stuff here to send it to middleware it would be something like:
-        self._msgBroker.basic_publish('position', message)
+        self._msgBroker.basic_publish('send_to_tracker', 'position', message)
 
     # Will generate a new position to be sent to the broker
     def _generate_position(self):

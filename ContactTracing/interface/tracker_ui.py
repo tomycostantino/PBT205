@@ -8,6 +8,8 @@ class TrackerUI(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self._tracker = Tracker()
+
         upper_frame = tk.Frame(self, width=200, height=75)
         upper_frame.pack(side=tk.TOP, expand=True, fill='both')
 
@@ -24,10 +26,7 @@ class TrackerUI(tk.Frame):
         search_button.pack(side=tk.TOP, anchor='center', fill='both')
 
     def _start(self):
-        tr = Tracker()
-        tr.run()
-        # self._tracker = Tracker()
-        # self._tracker.run()
+        self._tracker.run()
 
     def _search_database(self):
         print('New search')
