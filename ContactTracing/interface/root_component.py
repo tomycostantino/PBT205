@@ -47,8 +47,8 @@ class RootComponent(tk.Tk):
                                    command=self._on_closing)
         exit_button.pack(side=tk.TOP, anchor='center')
 
-    # Change interfaces as users interact with the application
     def _create_widgets(self):
+        # Change interfaces as users interact with the application
         self.withdraw()
 
         self._top_window = tk.Toplevel(self)
@@ -75,20 +75,20 @@ class RootComponent(tk.Tk):
         return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_start)
         return_button.pack(side=tk.TOP, anchor='center')
 
-    # Pop up a window to ask if the user really wants to exit
     def _on_closing(self):
+        # Pop up a window to ask if the user really wants to exit
         result = askquestion('Quit', 'Do you want to quit?')
         if result == 'yes':
             self.destroy()
             self.quit()
 
-    # Return home button
     def _back_to_start(self):
+        # Return home button
         self._top_window.withdraw()
         self._top_window.update()
         self.deiconify()
 
-    # Change modes and create widgets
     def _on_click(self, mode: str):
+        # Change modes and create widgets
         self._mode = mode
         self._create_widgets()

@@ -9,24 +9,24 @@ class Database:
         self._cursor = self._conn.cursor()
         self._create_tables()
 
-    # Create tables in database when initialised
     def _create_tables(self):
+        # Create tables in database when initialised
         self._cursor.execute("CREATE TABLE IF NOT EXISTS positions (name TEXT, position TEXT, date TEXT, time TEXT)")
         self._conn.commit()  # Saves the changes
 
-    # Insert new person into database
     def insert_value(self, personId: str, position: str, date: str, time: str):
+        # Insert new person into database
         self._cursor.execute("INSERT INTO positions VALUES (?, ?, ?, ?)", (personId, position, date, time))
         self._conn.commit()
 
-    # Query the database for a person
     def get_query(self, personId: str):
+        # Query the database for a person
         self._cursor.execute("SELECT * FROM positions WHERE name = ?", (personId,))
         positions = self._cursor.fetchall()
 
         positions_list = [row for row in positions]
         return positions_list
 
-    # Close connection before delete it
     def close(self):
+        # Close connection before delete it
         self._conn.close()

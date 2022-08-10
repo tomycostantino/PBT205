@@ -6,6 +6,7 @@ from message_broker import MessageBroker
 from datetime import datetime
 from threading import Thread
 
+
 class Person:
     def __init__(self, personId: str = '', movement_speed: str = '', grid_size: tuple = (10, 10)):
         self._personId = personId
@@ -19,12 +20,10 @@ class Person:
         self._actual_position['personId'] = self._personId
 
     def run(self):
-        thread = Thread(target=self._send_location)
-        thread.daemon = True
-        thread.start()
+        Thread(target=self._send_location, daemon=True).start()
 
-    # Send new location to the broker so the tracker updates
     def _send_location(self):
+        # Send new location to the broker so the tracker updates
 
         # Kick off the thread to send the location continuously
         threading.Timer(self._movement_speed, self._send_location).start()
@@ -43,8 +42,8 @@ class Person:
 
         self._msgBroker.JSON_publish('send_to_tracker', 'position', self._actual_position)
 
-    # Will generate a new position to be sent to the broker
     def _generate_position(self):
+        # Will generate a new position to be sent to the broker
         x = random.randint(0, self._grid_size[0])
         y = random.randint(0, self._grid_size[1])
         new_position = str(x) + ', ' + str(y)

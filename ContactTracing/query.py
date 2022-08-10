@@ -14,26 +14,23 @@ class Query:
 
         self._subscribed = False
 
-    # Publishes the identifier of the person asked for
     def publish_query(self):
+        # Publishes the identifier of the person asked for
         message = {'personId': self._personId}
         self._queryPublisher.JSON_publish('send_to_tracker', 'query', message)
 
         # Once query sent now kick off thread to receive if there is something
         self.get_query()
 
-    # Get the query from the tracker and prints it out to the screen
     def get_query(self):
+        # Get the query from the tracker and prints it out to the screen
+
         # If we are not subscribed then subscribe to the query response channel
         if not self._subscribed:
-            thread = Thread(target=self._subscribe)
-            thread.daemon = True
-            thread.start()
+            Thread(target=self._subscribe, daemon=True).start()
 
         # Try to receive the query
-        thread = Thread(target=self._try_to_receive_query)
-        thread.daemon = True
-        thread.start()
+        Thread(target=self._try_to_receive_query, daemon=True).start()
 
     def _try_to_receive_query(self):
         query_result = None
@@ -53,8 +50,8 @@ class Query:
         else:
             print('No query received')
 
-    # Subscribes to the query response channel
     def _subscribe(self):
+        # Subscribes to the query response channel
         self._subscribed = True
         self._queryConsumer.subscribe('sent_from_tracker', 'query_response')
     

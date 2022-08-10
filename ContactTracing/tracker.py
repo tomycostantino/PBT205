@@ -3,29 +3,24 @@ import threading
 from database import Database
 from threading import Thread
 from message_broker import MessageBroker
-from time import sleep
 
 
 class Tracker:
     def __init__(self):
         endpoint = 'amqps://bueyyocn:Z4EAvfK6ZD5HTAlSPdrmrBfLcSzSX2Hb@vulture.rmq.cloudamqp.com/bueyyocn'
         self._positionBroker = MessageBroker(endpoint)  # Broker to read position
-        self._queryBroker = MessageBroker(endpoint)  # Broker to read query
+        self._queryBroker = MessageBroker(endpoint)     # Broker to read query
         self._queryPublisher = MessageBroker(endpoint)  # Broker to publish query
 
-    # Subscribe to the channels
-    # Use a thread to run the function in parallel so it does not get stuck in the receiving loop
-    # I created two brokers because they are subscribed to different channels
     def _subscribe(self):
-        t1 = Thread(target=self._positionBroker.subscribe, args=('send_to_tracker', 'position'))
-        t2 = Thread(target=self._queryBroker.subscribe, args=('send_to_tracker', 'query'))
-        t1.daemon = True  # Dies when main thread (only non-daemon thread) exits.
-        t2.daemon = True
-        t1.start()
-        t2.start()
+        # Subscribe to the channels
+        # Use a thread to run the function in parallel so it does not get stuck in the receiving loop
+        # I created two brokers because they are subscribed to different channels
+        Thread(target=self._positionBroker.subscribe, args=('send_to_tracker', 'position'), daemon=True).start()
+        Thread(target=self._queryBroker.subscribe, args=('send_to_tracker', 'query'), daemon=True).start()
 
-    # Read messages from both queues every second
     def _read_messages(self):
+        # Read messages from both queues every second
         threading.Timer(1, self._read_messages).start()
         position_message = self._positionBroker.get_messages()
         query_message = self._queryBroker.get_messages()
@@ -38,19 +33,17 @@ class Tracker:
             for query in query_message:
                 self._respond_query(query)
 
-    # When a person sends location, update the database
     def _update_database(self, messages):
+        # When a person sends location, update the database
         # I create database here and then delete because it can only be used
         # in the thread that it is created in
         db = Database()
-        for message in messages:
-            db.insert_value(message['personId'].lower(), message['position'], message['date'], message['time'])
-            print(message)
+        [db.insert_value(message['personId'].lower(), message['position'], message['date'], message['time']) for message in messages]
         db.close()
         del db
 
-    # Publish what is retrieved from database
     def _respond_query(self, query):
+        # Publish what is retrieved from database
         db = Database()
         # I had an error with the key of the dict so this was my only way to get rid of it
         personId = list(query.items())
@@ -78,11 +71,6 @@ class Tracker:
     # Run the tracker after it is created
     def run(self):
         # The functions will be run in parallel so the UI can keep working
-        t1 = Thread(target=self._subscribe)
-        t2 = Thread(target=self._read_messages)
-
-        t1.daemon = True  # Dies when main thread (only non-daemon thread) exits.
-        t2.daemon = True
-
-        t1.start()
-        t2.start()
+        # Dies when main thread (only non-daemon thread) exits.
+        Thread(target=self._subscribe, daemon=True).start()
+        Thread(target=self._read_messages, daemon=True).start()
