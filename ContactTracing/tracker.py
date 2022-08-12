@@ -37,12 +37,14 @@ class Tracker:
         # When a person sends location, update the database
         # I create database here and then delete because it can only be used
         # in the thread that it is created in
+        print(messages)
         db = Database()
         [db.insert_value(message['personId'].lower(), message['position'], message['date'], message['time']) for message in messages]
         db.close()
         del db
 
     def _respond_query(self, query):
+        print(query)
         # Publish what is retrieved from database
         db = Database()
         # I had an error with the key of the dict so this was my only way to get rid of it
@@ -61,6 +63,7 @@ class Tracker:
             for row in db_result:
                 results[count] = {'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]}
                 count += 1
+
             self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', results)
 
         # If person not found, send a message saying so

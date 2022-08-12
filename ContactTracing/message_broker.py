@@ -32,7 +32,6 @@ class MessageBroker:
         # Handle incoming messages
         # And add them to queue to then get picked up by tracker
         new_message = json.loads(body)
-        print(new_message)
         self._messageQueue.append(new_message)
 
     def get_messages(self):

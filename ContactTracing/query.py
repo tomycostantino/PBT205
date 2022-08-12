@@ -1,4 +1,5 @@
 # Tomas Costantino - A00042881
+import threading
 from time import sleep
 from threading import Thread
 from message_broker import MessageBroker
@@ -29,26 +30,16 @@ class Query:
         if not self._subscribed:
             Thread(target=self._subscribe, daemon=True).start()
 
-        # Try to receive the query
-        Thread(target=self._try_to_receive_query, daemon=True).start()
+            # Try to receive the query
+            Thread(target=self.read_messages(), daemon=True).start()
 
-    def _try_to_receive_query(self):
-        query_result = None
-        counter = 0
-        # Try to retrieve the query ten times and if not possible leave the loop
-        while query_result is None and counter < 10:
-            query_result = self._queryConsumer.get_messages()
-            counter += 1
-            print('Waiting for query')
-            sleep(1)
+    def read_messages(self):
+        threading.Timer(1, self.read_messages).start()
 
-        # Check if the query is not empty
-        if query_result:
-            for query in query_result[0].items():
-                print(query)
-
-        else:
-            print('No query received')
+        messages = self._queryConsumer.get_messages()
+        if messages is not None:
+            for message in messages[0].items():
+                print(message)
 
     def _subscribe(self):
         # Subscribes to the query response channel
