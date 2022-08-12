@@ -30,8 +30,7 @@ class Tracker:
             self._update_database(position_message)
 
         elif query_message:
-            for query in query_message:
-                self._respond_query(query)
+            self._respond_query(query_message)
 
     def _update_database(self, messages):
         # When a person sends location, update the database
@@ -39,37 +38,50 @@ class Tracker:
         # in the thread that it is created in
         print(messages)
         db = Database()
-        [db.insert_value(message['personId'].lower(), message['position'], message['date'], message['time']) for message in messages]
+        [db.insert_position_data(message['personId'].lower(), message['position'], message['date'], message['time']) for message in messages]
         db.close()
         del db
+
+    def _retrieve_position(self, personId: str):
+        # Publish what is retrieved from database
+        db = Database()
+        db_result = db.retrieve_position_data(personId)
+        db.close()
+        del db
+        return db_result
+
+    def _create_query_response(self, database_rows):
+        # Create a big dictionary of dictionaries to send over the broker
+        results = dict()
+        for idx, row in database_rows:
+            results[idx] = {'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]}
+
+        return results
 
     def _respond_query(self, query):
         print(query)
-        # Publish what is retrieved from database
-        db = Database()
-        # I had an error with the key of the dict so this was my only way to get rid of it
-        personId = list(query.items())
-        db_result = db.get_query(str(personId[0][1]))
-
-        db.close()
-        del db
+        personId = str(list(query.items())[0][1])
+        db_result = self._retrieve_position(personId)
 
         # See if what retrieved is empty
         # If we know the person we give all info
         if db_result:
-            # Create a big dictionary of dictionaries to send over the broker
-            results = dict()
-            count = 1
-            for row in db_result:
-                results[count] = {'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]}
-                count += 1
-
+            results = self._create_query_response(db_result)
             self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', results)
 
         # If person not found, send a message saying so
         else:
             errorMessage = {'error': 'No results found'}
             self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', errorMessage)
+
+    def _check_close_contact(self):
+        pass
+
+    def _add_close_contact(self):
+        pass
+
+    def _retrieve_close_contact(self):
+        pass
 
     # Run the tracker after it is created
     def run(self):
