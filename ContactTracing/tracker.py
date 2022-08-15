@@ -74,14 +74,21 @@ class Tracker:
             errorMessage = {'error': 'No results found'}
             self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', errorMessage)
 
-    def _check_close_contact(self):
-        pass
+    def get_close_contact(self, personId: str):
+        db = Database()
+        db_result = db.retrieve_close_contact(personId)
+        db.close()
+        del db
 
-    def _add_close_contact(self):
-        pass
+        [print(row) for row in db_result]
 
-    def _retrieve_close_contact(self):
-        pass
+    def get_all_close_contacts(self):
+        db = Database()
+        db_result = db.retrieve_all_close_contact()
+        db.close()
+        del db
+
+        [print(row) for row in db_result]
 
     # Run the tracker after it is created
     def run(self):
