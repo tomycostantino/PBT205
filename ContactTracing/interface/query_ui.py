@@ -39,3 +39,4 @@ class QueryUI(tk.Frame):
         query = Query(self._full_name.get('1.0', 'end-1c'))
         query.publish_query()
         self._full_name.delete('1.0', 'end-1c')
+        del query

@@ -12,6 +12,8 @@ class Tracker:
         self._queryBroker = MessageBroker(endpoint)     # Broker to read query
         self._queryPublisher = MessageBroker(endpoint)  # Broker to publish query
 
+        self._running = False
+
     def _subscribe(self):
         # Subscribe to the channels
         # Use a thread to run the function in parallel so it does not get stuck in the receiving loop
@@ -74,7 +76,24 @@ class Tracker:
             errorMessage = {'error': 'No results found'}
             self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', errorMessage)
 
+    def add_infected_person(self, personId: str):
+        # This function will make an attempt to add a person to the infected list
+        db = Database()
+        db_result = db.check_if_exists(personId)
+
+        if db_result:
+            db.add_infected_person(personId)
+            db.close()
+            del db
+            return True
+        else:
+            db.close()
+            del db
+            return False
+
     def get_close_contact(self, personId: str):
+        # Get the close contact of a person and print out the result
+        # It will later be used to be displayed in the UI
         db = Database()
         db_result = db.retrieve_close_contact(personId)
         db.close()
@@ -83,6 +102,8 @@ class Tracker:
         [print(row) for row in db_result]
 
     def get_all_close_contacts(self):
+        # Get all history of close contacts and print out the result
+        # It will later be used to be displayed in the UI
         db = Database()
         db_result = db.retrieve_all_close_contact()
         db.close()
@@ -90,9 +111,14 @@ class Tracker:
 
         [print(row) for row in db_result]
 
+    def is_running(self):
+        return self._running
+
     # Run the tracker after it is created
     def run(self):
         # The functions will be run in parallel so the UI can keep working
         # Dies when main thread (only non-daemon thread) exits.
         Thread(target=self._subscribe, daemon=True).start()
         Thread(target=self._read_messages, daemon=True).start()
+
+        self._running = True

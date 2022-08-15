@@ -2,6 +2,7 @@
 import tkinter as tk
 import tkmacosx as tkmac
 
+from tracker import Tracker
 from tkinter.messagebox import askquestion
 from interface.query_ui import QueryUI
 from interface.person_ui import PersonUI
@@ -14,10 +15,13 @@ class RootComponent(tk.Tk):
 
         # Configure main window
         self.eval('tk::PlaceWindow . center')
-        self.geometry('200x100')
-        self.resizable(False, False)
+        self.geometry('180x150')
+        self.resizable(True, True)
         self.title('Contract Tracing')
         self.protocol('WM_DELETE_WINDOW', self._on_closing)
+
+        self.tracker = Tracker()
+        self.tracker.run()
 
         # Know the mode to use so it can interchange between Person, Query, and Tracker UIs
         self._mode = ''
@@ -27,24 +31,23 @@ class RootComponent(tk.Tk):
         commands_frame.pack(side=tk.TOP, expand=True, fill='both')
 
         # Title
-        title_label = tk.Label(commands_frame, text='Use it as:', fg='black', font=("Calibri", 14, "bold"))
-        title_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
+        title_label = tk.Label(commands_frame, text='Run as:', fg='black', font=("Calibri", 14, "bold"))
+        title_label.pack(side=tk.TOP, expand=True, anchor='center')
 
         # Choices
         person_button = tkmac.Button(commands_frame, text="Person",
                                      command=lambda: self._on_click('person'))
-        person_button.pack(side=tk.TOP, anchor='center', fill='both')
+        person_button.pack(side=tk.TOP, anchor='center')
 
         query_button = tkmac.Button(commands_frame, text="Query",
                                     command=lambda: self._on_click('query'))
-        query_button.pack(side=tk.TOP, anchor='center', fill='both')
+        query_button.pack(side=tk.TOP, anchor='center')
 
         tracker_button = tkmac.Button(commands_frame, text='Tracker',
                                       command=lambda: self._on_click('tracker'))
-        tracker_button.pack(side=tk.TOP, anchor='center', fill='both')
+        tracker_button.pack(side=tk.TOP, anchor='center')
 
-        exit_button = tkmac.Button(commands_frame, text='Exit', height=10, width=10,
-                                   command=self._on_closing)
+        exit_button = tkmac.Button(commands_frame, text='Exit', command=self._on_closing)
         exit_button.pack(side=tk.TOP, anchor='center')
 
     def _create_widgets(self):
@@ -65,7 +68,7 @@ class RootComponent(tk.Tk):
             ui.pack(side=tk.TOP, expand=True, fill='both')
 
         elif self._mode == 'tracker':
-            ui = TrackerUI(self._top_window)
+            ui = TrackerUI(self.tracker, self._top_window)
             ui.pack(side=tk.TOP, expand=True, fill='both')
 
         # create frame for return button
