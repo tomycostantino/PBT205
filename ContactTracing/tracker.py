@@ -76,20 +76,21 @@ class Tracker:
             errorMessage = {'error': 'No results found'}
             self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', errorMessage)
 
-    def add_infected_person(self, personId: str):
+    def check_if_person_exists(self, table: str, personId: str) -> bool:
+        # Check if a person exists in the database
+        db = Database()
+        db_result = db.check_if_person_exists(table, personId)
+        db.close()
+        del db
+
+        return True if db_result else False
+
+    def add_infected_person(self, personId: str, date: str):
         # This function will make an attempt to add a person to the infected list
         db = Database()
-        db_result = db.check_if_exists(personId)
-
-        if db_result:
-            db.add_infected_person(personId)
-            db.close()
-            del db
-            return True
-        else:
-            db.close()
-            del db
-            return False
+        db.add_infected_person(personId, date)
+        db.close()
+        del db
 
     def get_close_contact(self, personId: str):
         # Get the close contact of a person and print out the result
@@ -112,6 +113,7 @@ class Tracker:
         [print(row) for row in db_result]
 
     def is_running(self):
+        # Don't allow for another tracker to run at the same time
         return self._running
 
     # Run the tracker after it is created

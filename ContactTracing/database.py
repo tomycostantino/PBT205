@@ -1,5 +1,6 @@
 # Tomas Costantino - A00042881
 import sqlite3
+from datetime import datetime, date, timedelta
 
 
 class Database:
@@ -13,12 +14,14 @@ class Database:
         # Create tables in database when initialised
         self._cursor.execute("CREATE TABLE IF NOT EXISTS positions (name TEXT, position TEXT, date TEXT, time TEXT)")
         self._conn.commit()  # Saves the changes
-        self._cursor.execute("CREATE TABLE IF NOT EXISTS close_contacts (name_1 TEXT, name_2 TEXT, position TEXT, date TEXT)")
+        self._cursor.execute("CREATE TABLE IF NOT EXISTS close_contacts (infected_person TEXT, contact TEXT, position TEXT, date TEXT)")
+        self._conn.commit()  # Saves the changes
+        self._cursor.execute("CREATE TABLE IF NOT EXISTS currently_infected_people (name TEXT, date_infected TEXT, date_recovered TEXT)")
         self._conn.commit()  # Saves the changes
 
-    def check_if_exists(self, personId: str) -> bool:
+    def check_if_person_exists(self, table: str, personId: str) -> bool:
         # Check if a person exists in the database
-        self._cursor.execute('SELECT * FROM positions WHERE name = ?', (personId,))
+        self._cursor.execute('SELECT * FROM ' + table + ' WHERE name = ?', (personId,))
         result = self._cursor.fetchall()
         return True if result else False
 
@@ -30,25 +33,36 @@ class Database:
         # See if the new entry is a close contact with someone in the database
         self._check_for_close_contact(personId, position, date)
 
+    def _check_for_close_contact(self, personId: str, position: str, date: str):
+        # Check if there is a close contact after entering a new position to the database
+        if self.check_if_person_exists('currently_infected_people', personId):
+            self._cursor.execute('SELECT name FROM positions WHERE name != ? AND position = ? AND date = ?', (personId, position, date))
+            contacts = self._cursor.fetchall()
+            [self._add_close_contact(personId, contact[0], position, date) for contact in contacts] if contacts else None
+
+        # The person is not infected, so now retrieve the name of currently infected people and check on the system
+        else:
+            self._cursor.execute('SELECT name FROM currently_infected_people')
+            infected_people = self._cursor.fetchall()
+            for infected_person in infected_people:
+                self._cursor.execute('SELECT name FROM positions WHERE name = ? AND position = ? AND date = ?', (infected_person[0], position, date))
+                contacts = self._cursor.fetchall()
+                self._add_close_contact(infected_person[0], contacts[0], position, date) if contacts else None
+
+    def _add_close_contact(self, infected_person: str, contact: str, position: str, date: str):
+        # Add a close contact to the database
+        self._cursor.execute('INSERT INTO close_contacts VALUES (?, ?, ?, ?)', (infected_person, contact, position, date))
+        self._conn.commit()
+
     def retrieve_position_data(self, personId: str):
-        # Query the database for a person
+        # Query the database for a person's historical position data
         self._cursor.execute("SELECT * FROM positions WHERE name = ?", (personId,))
         positions = self._cursor.fetchall()
         return [row for row in positions]
 
-    def _check_for_close_contact(self, personId: str, position: str, date: str):
-        # Check if there is a close contact after entering a new position to the database
-        self._cursor.execute('SELECT * FROM positions WHERE name != ? AND position = ? AND date = ?', (personId, position, date))
-        close_contacts = self._cursor.fetchall()
-        close_contacts = [row for row in close_contacts]
-
-        # if there is any close contact, add it to the database
-        if close_contacts:
-            [self._add_close_contact(personId, contact[0], position, date) for contact in close_contacts]
-
     def retrieve_close_contact(self, personId: str):
-        # Retrieve close contact by person name
-        self._cursor.execute('SELECT * FROM close_contacts WHERE name_1 = ? OR name_2 = ?', (personId, personId))
+        # Retrieve close contacts by person name
+        self._cursor.execute('SELECT * FROM close_contacts WHERE infected_person = ? OR contact = ?', (personId, personId))
         close_contacts = self._cursor.fetchall()
         return [row for row in close_contacts]
 
@@ -58,12 +72,13 @@ class Database:
         close_contacts = self._cursor.fetchall()
         return [row for row in close_contacts]
 
-    def add_infected_person(self, personId: str):
-        pass
+    def add_infected_person(self, personId: str, date_infected: str):
+        # Add a person to the currently infected people table
+        date_infected = datetime.strptime(date_infected, '%d/%m/%Y')
 
-    def _add_close_contact(self, name_1: str, name_2: str, position: str, date: str):
-        # Add a close contact to the database
-        self._cursor.execute('INSERT INTO close_contacts VALUES (?, ?, ?, ?)', (name_1, name_2, position, date))
+        date_recovered = date_infected + timedelta(weeks=2)
+
+        self._cursor.execute("INSERT INTO currently_infected_people VALUES (?, ?, ?)", (personId, date_infected, date_recovered))
         self._conn.commit()
 
     def close(self):
