@@ -44,15 +44,20 @@ class Database:
         else:
             self._cursor.execute('SELECT name FROM currently_infected_people')
             infected_people = self._cursor.fetchall()
+
             for infected_person in infected_people:
-                self._cursor.execute('SELECT name FROM positions WHERE name = ? AND position = ? AND date = ?', (infected_person[0], position, date))
+                self._cursor.execute('SELECT name FROM positions WHERE name = ? AND position = ? AND date = ?', (str(infected_person), position, date))
                 contacts = self._cursor.fetchall()
                 self._add_close_contact(infected_person[0], contacts[0], position, date) if contacts else None
 
     def _add_close_contact(self, infected_person: str, contact: str, position: str, date: str):
         # Add a close contact to the database
-        self._cursor.execute('INSERT INTO close_contacts VALUES (?, ?, ?, ?)', (infected_person, contact, position, date))
-        self._conn.commit()
+        self._cursor.execute('SELECT * FROM close_contacts WHERE infected_person = ? AND contact = ? AND position = ? AND date = ?',
+                             (infected_person, contact, position, date))
+        result = self._cursor.fetchall()
+        if not result:
+            self._cursor.execute('INSERT INTO close_contacts VALUES (?, ?, ?, ?)', (infected_person, contact, position, date))
+            self._conn.commit()
 
     def retrieve_position_data(self, personId: str):
         # Query the database for a person's historical position data
@@ -75,8 +80,10 @@ class Database:
     def add_infected_person(self, personId: str, date_infected: str):
         # Add a person to the currently infected people table
         date_infected = datetime.strptime(date_infected, '%d/%m/%Y')
-
         date_recovered = date_infected + timedelta(weeks=2)
+
+        date_infected = date_infected.strftime('%d/%m/%Y')
+        date_recovered = date_recovered.strftime('%d/%m/%Y')
 
         self._cursor.execute("INSERT INTO currently_infected_people VALUES (?, ?, ?)", (personId, date_infected, date_recovered))
         self._conn.commit()
