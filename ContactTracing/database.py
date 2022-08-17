@@ -88,6 +88,21 @@ class Database:
         self._cursor.execute("INSERT INTO currently_infected_people VALUES (?, ?, ?)", (personId, date_infected, date_recovered))
         self._conn.commit()
 
+    def check_for_recovered_persons(self):
+        # Check if a person has recovered
+        today = datetime.now()
+        today = today.strftime('%d/%m/%Y %H:%M:%S')
+        today = today.split(' ')[0]
+        self._cursor.execute('SELECT name FROM currently_infected_people WHERE date_recovered = ?', (today,))
+        result = self._cursor.fetchall()
+
+        [self._remove_infected_person(str(person[0])) for person in result] if result else None
+
+    def _remove_infected_person(self, personId: str):
+        # Remove a person from the currently infected people table
+        self._cursor.execute("DELETE FROM currently_infected_people WHERE name = ?", (personId,))
+        self._conn.commit()
+
     def close(self):
         # Close connection before delete it
         self._conn.close()

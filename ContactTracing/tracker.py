@@ -112,6 +112,13 @@ class Tracker:
 
         [print(row) for row in db_result]
 
+    def _check_for_recovery(self):
+        threading.Timer(10, self._check_for_recovery).start()
+        db = Database()
+        db.check_for_recovered_persons()
+        db.close()
+        del db
+
     def is_running(self):
         # Don't allow for another tracker to run at the same time
         return self._running
@@ -122,5 +129,5 @@ class Tracker:
         # Dies when main thread (only non-daemon thread) exits.
         Thread(target=self._subscribe, daemon=True).start()
         Thread(target=self._read_messages, daemon=True).start()
-
+        Thread(target=self._check_for_recovery, daemon=True).start()
         self._running = True
