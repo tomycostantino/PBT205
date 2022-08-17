@@ -19,9 +19,6 @@ class Person:
         self._actual_position = dict()
         self._actual_position['personId'] = self._personId
 
-    def run(self):
-        Thread(target=self._send_location, daemon=True).start()
-
     def _send_location(self):
         # Send new location to the broker so the tracker updates
 
@@ -48,3 +45,6 @@ class Person:
         y = random.randint(0, self._grid_size[1])
         new_position = str(x) + ', ' + str(y)
         self._actual_position['position'] = new_position
+
+    def run(self):
+        Thread(target=self._send_location, daemon=True).start()

@@ -67,7 +67,7 @@ class Database:
 
     def retrieve_close_contact(self, personId: str):
         # Retrieve close contacts by person name
-        self._cursor.execute('SELECT * FROM close_contacts WHERE infected_person = ? OR contact = ?', (personId, personId))
+        self._cursor.execute('SELECT position FROM close_contacts WHERE infected_person = ? OR contact = ?', (personId, personId))
         close_contacts = self._cursor.fetchall()
         return [row for row in close_contacts]
 

@@ -3,6 +3,7 @@ import tkinter as tk
 import tkmacosx as tkmac
 import tkinter.messagebox
 
+from interface.grid import Grid
 from datetime import datetime
 from interface.styling import *
 
@@ -25,8 +26,12 @@ class TrackerUI(tk.Frame):
         label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
         # In a future this button should open a window to search the database from the GUI
-        search_button = tkmac.Button(upper_frame, text='Add infected person', command=self._add_infected_person)
-        search_button.pack(side=tk.TOP, anchor='center')
+        add_infected = tkmac.Button(upper_frame, text='Add infected person', command=self._add_infected_person)
+        add_infected.pack(side=tk.TOP, anchor='center')
+
+        # Create grid
+        display_grid = tkmac.Button(upper_frame, text='Display grid', command=self._display_grid)
+        display_grid.pack(side=tk.TOP, anchor='center')
 
     def _add_infected_person(self):
         self._popup_window = tk.Toplevel(self)
@@ -47,10 +52,10 @@ class TrackerUI(tk.Frame):
         self._infected_date.pack(side=tk.TOP)
 
         submit_button = tkmac.Button(self._popup_window, text='Submit',
-                                     command=lambda: self._submit(self._full_name.get('1.0', 'end-1c')))
+                                     command=lambda: self._submit_infected_person(self._full_name.get('1.0', 'end-1c')))
         submit_button.pack(side=tk.TOP, anchor='center')
 
-    def _submit(self, personId: str):
+    def _submit_infected_person(self, personId: str):
 
         if len(personId) == 0:
             tkinter.messagebox.showinfo("Contact Tracing", "Please enter a name")
@@ -82,3 +87,40 @@ class TrackerUI(tk.Frame):
                                                                "so it cannot be marked as infected")
                 self._full_name.delete('1.0', 'end-1c')
 
+    def _display_grid(self):
+        self._popup_window = tk.Toplevel(self)
+        self._popup_window.wm_title("Display grid")
+        self._popup_window.geometry("600x700")
+        # Title
+        label = tk.Label(self._popup_window, text='You are in Grid mode', fg='black', font=HEADER)
+        label.pack(side=tk.TOP, expand=False, anchor='center')
+
+        # Grid widgets
+        self._grid_name = tk.Text(self._popup_window, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
+        self._grid_name.pack(side=tk.TOP)
+
+        # When the button is pressed it will send the data to the tracker and wait for a response
+        submit_button = tkmac.Button(self._popup_window, text='Submit', command=self._submit_grid)
+        submit_button.pack(side=tk.TOP, anchor='center')
+
+        self._grid = Grid(self._popup_window)
+        self._grid.pack(side=tk.TOP, expand=True, fill='both')
+
+    def _submit_grid(self):
+        name = self._grid_name.get('1.0', 'end-1c')
+        if len(name) == 0:
+            tkinter.messagebox.showinfo("Contact Tracing", "Please enter a name")
+            self._grid_name.delete('1.0', 'end-1c')
+            self._grid.clear_canvas()
+            return
+
+        elif not self._tracker.check_if_person_exists('positions', name):
+            tkinter.messagebox.showinfo("Contact Tracing", "No registry of such user")
+            self._grid_name.delete('1.0', 'end-1c')
+            self._grid.clear_canvas()
+            return
+
+        else:
+            to_color = self._tracker.get_close_contact(self._grid_name.get('1.0', 'end-1c'))
+            self._grid.draw_grid(10, 10, to_color)
+            self._grid_name.delete('1.0', 'end-1c')

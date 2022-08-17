@@ -55,14 +55,16 @@ class Tracker:
     def _create_query_response(self, database_rows):
         # Create a big dictionary of dictionaries to send over the broker
         results = dict()
-        for idx, row in database_rows:
+        idx = 1
+        for row in database_rows:
             results[idx] = {'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]}
-
+            idx += 1
         return results
 
     def _respond_query(self, query):
         print(query)
-        personId = str(list(query.items())[0][1])
+        personId = str(query[0]['personId'])
+        print(personId)
         db_result = self._retrieve_position(personId)
 
         # See if what retrieved is empty
@@ -100,7 +102,7 @@ class Tracker:
         db.close()
         del db
 
-        [print(row) for row in db_result]
+        return [row for row in db_result]
 
     def get_all_close_contacts(self):
         # Get all history of close contacts and print out the result
@@ -110,7 +112,7 @@ class Tracker:
         db.close()
         del db
 
-        [print(row) for row in db_result]
+        return [row for row in db_result]
 
     def _check_for_recovery(self):
         threading.Timer(10, self._check_for_recovery).start()
