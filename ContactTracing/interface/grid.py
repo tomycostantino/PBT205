@@ -11,12 +11,16 @@ class Grid(tk.Frame):
         self._canvas = tk.Canvas(self, width=500, height=500)
         self._canvas.pack(side=tk.TOP, expand=True, fill='both')
 
-    def _create_canvas(self, rows, columns, to_color: list = None):
+    def _create_canvas(self, rows, columns, to_color):
 
         for i in range(1, rows + 1):
+
             for j in range(1, columns + 1):
+
                 if (i, j) in to_color:
-                    self._canvas.create_rectangle(i * 50, j * 50, (i + 1) * 50, (j + 1) * 50, fill='red')
+                    button = tkmac.Button(self._canvas, text='{}, {}'.format(i, j), bg='red')
+                    self._canvas.create_window((i * 50) + 25, (j * 50) + 25, window=button, anchor='center', width=50, height=50)
+
                 else:
                     self._canvas.create_rectangle(i*50, j*50, (i+1)*50, (j+1)*50, fill='grey')
 
