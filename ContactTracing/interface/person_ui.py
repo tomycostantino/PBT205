@@ -29,10 +29,12 @@ class PersonUI(tk.Frame):
         self._x = tk.Text(upper_frame, height=2, width=5, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
         self._x.pack(side=tk.TOP)
         self._x.insert('1.0', '10')
+        self._x.config(state=tk.DISABLED)
 
         self._y = tk.Text(upper_frame, height=2, width=5, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
         self._y.pack(side=tk.TOP)
         self._y.insert('1.0', '10')
+        self._y.config(state=tk.DISABLED)
 
         # Name items
         name_label = tk.Label(upper_frame, text='Please enter your name:', fg='black', font=LABEL)
