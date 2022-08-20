@@ -47,7 +47,7 @@ class Tracker:
     def _retrieve_position(self, personId: str):
         # Publish what is retrieved from database
         db = Database()
-        db_result = db.retrieve_position_data(personId)
+        db_result = db.retrieve_position_data(personId.lower())
         db.close()
         del db
         return db_result
@@ -81,7 +81,7 @@ class Tracker:
     def check_if_person_exists(self, table: str, personId: str) -> bool:
         # Check if a person exists in the database
         db = Database()
-        db_result = db.check_if_person_exists(table, personId)
+        db_result = db.check_if_person_exists(table.lower(), personId.lower())
         db.close()
         del db
 
@@ -90,7 +90,7 @@ class Tracker:
     def add_infected_person(self, personId: str, date: str):
         # This function will make an attempt to add a person to the infected list
         db = Database()
-        db.add_infected_person(personId, date)
+        db.add_infected_person(personId.lower(), date)
         db.close()
         del db
 
@@ -98,7 +98,7 @@ class Tracker:
         # Get the close contact of a person and print out the result
         # It will later be used to be displayed in the UI
         db = Database()
-        db_result = db.retrieve_close_contact(personId)
+        db_result = db.retrieve_close_contact(personId.lower())
         db.close()
         del db
 

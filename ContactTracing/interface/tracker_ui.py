@@ -110,8 +110,8 @@ class TrackerUI(tk.Frame):
         name = self._grid_name.get('1.0', 'end-1c')
         if len(name) == 0:
             tkinter.messagebox.showinfo("Contact Tracing", "Please enter a name")
-            self._grid_name.delete('1.0', 'end-1c')
             self._grid.clear_canvas()
+            self._grid_name.delete('1.0', 'end-1c')
             return
 
         elif not self._tracker.check_if_person_exists('positions', name):
@@ -122,5 +122,5 @@ class TrackerUI(tk.Frame):
 
         else:
             to_color = self._tracker.get_close_contact(self._grid_name.get('1.0', 'end-1c'))
-            self._grid.draw_grid(10, 10, to_color)
+            self._grid.draw_grid(10, 10, to_color, self._grid_name.get('1.0', 'end-1c'))
             self._grid_name.delete('1.0', 'end-1c')
