@@ -7,6 +7,7 @@ from tkinter.messagebox import askquestion
 from interface.query_ui import QueryUI
 from interface.person_ui import PersonUI
 from interface.tracker_ui import TrackerUI
+from interface.geometry import *
 
 
 class RootComponent(tk.Tk):
@@ -15,16 +16,13 @@ class RootComponent(tk.Tk):
 
         # Configure main window
         self.eval('tk::PlaceWindow . center')
-        self.geometry('180x150')
+        self.geometry(MAIN_WINDOW)
         self.resizable(True, True)
         self.title('Contract Tracing')
         self.protocol('WM_DELETE_WINDOW', self._on_closing)
 
         self.tracker = Tracker()
         self.tracker.run()
-
-        # Know the mode to use so it can interchange between Person, Query, and Tracker UIs
-        self._mode = ''
 
         # Create commands frame
         commands_frame = tk.Frame(self)
@@ -36,47 +34,39 @@ class RootComponent(tk.Tk):
 
         # Choices
         person_button = tkmac.Button(commands_frame, text="Person",
-                                     command=lambda: self._on_click('person'))
+                                     command=lambda: self._create_window(person_button.cget("text").lower()))
         person_button.pack(side=tk.TOP, anchor='center')
 
         query_button = tkmac.Button(commands_frame, text="Query",
-                                    command=lambda: self._on_click('query'))
+                                    command=lambda: self._create_window(query_button.cget("text").lower()))
         query_button.pack(side=tk.TOP, anchor='center')
 
         tracker_button = tkmac.Button(commands_frame, text='Tracker',
-                                      command=lambda: self._on_click('tracker'))
+                                      command=lambda: self._create_window(tracker_button.cget("text").lower()))
         tracker_button.pack(side=tk.TOP, anchor='center')
 
         exit_button = tkmac.Button(commands_frame, text='Exit', command=self._on_closing)
         exit_button.pack(side=tk.TOP, anchor='center')
 
-    def _create_widgets(self):
+    def _create_window(self, mode: str):
         # Change interfaces as users interact with the application
         self.withdraw()
 
-        self._top_window = tk.Toplevel(self)
-        self._top_window.geometry('250x350')
-        self._top_window.protocol('WM_DELETE_WINDOW', self._on_closing)
-
         # create widgets based on the chosen mode
-        if self._mode == 'person':
-            ui = PersonUI(self._top_window)
-            ui.pack(side=tk.TOP, expand=True, fill='both')
+        if mode == 'person':
+            ui = PersonUI(self)
+            ui.geometry(PERSON_WINDOW)
+            ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
 
-        elif self._mode == 'query':
-            ui = QueryUI(self._top_window)
-            ui.pack(side=tk.TOP, expand=True, fill='both')
+        elif mode == 'query':
+            ui = QueryUI(self)
+            ui.geometry(QUERY_WINDOW)
+            ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
 
-        elif self._mode == 'tracker':
-            ui = TrackerUI(self.tracker, self._top_window)
-            ui.pack(side=tk.TOP, expand=True, fill='both')
-
-        # create frame for return button
-        lower_frame = tk.Frame(self._top_window)
-        lower_frame.pack(side=tk.TOP, expand=True, fill='both')
-
-        return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_start)
-        return_button.pack(side=tk.TOP, anchor='center')
+        elif mode == 'tracker':
+            ui = TrackerUI(self.tracker, self)
+            ui.geometry(TRACKER_WINDOW)
+            ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
 
     def _on_closing(self):
         # Pop up a window to ask if the user really wants to exit
@@ -85,13 +75,7 @@ class RootComponent(tk.Tk):
             self.destroy()
             self.quit()
 
-    def _back_to_start(self):
-        # Return home button
-        self._top_window.withdraw()
-        self._top_window.update()
+    def _back_to_start(self, ui):
+        # Destroy the current window and return to the start window
+        ui.destroy()
         self.deiconify()
-
-    def _on_click(self, mode: str):
-        # Change modes and create widgets
-        self._mode = mode
-        self._create_widgets()

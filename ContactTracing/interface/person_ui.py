@@ -7,7 +7,7 @@ from person import Person
 from interface.styling import *
 
 
-class PersonUI(tk.Frame):
+class PersonUI(tk.Toplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -56,6 +56,9 @@ class PersonUI(tk.Frame):
                                                                   self._movement_speed.get('1.0', 'end-1c')))
         submit_button.pack(side=tk.TOP, anchor='center')
 
+        return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_mainmenu)
+        return_button.pack(side=tk.TOP, anchor='center')
+
     def _submit(self, person_id: str, speed: str):
         # Check for valid entries
 
@@ -101,3 +104,10 @@ class PersonUI(tk.Frame):
 
         # Display popup window
         tkinter.messagebox.showinfo("Contact Tracing", "Person successfully created")
+
+    def _back_to_mainmenu(self):
+        self.master.deiconify()
+        self.destroy()
+
+
+

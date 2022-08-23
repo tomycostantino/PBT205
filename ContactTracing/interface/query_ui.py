@@ -7,7 +7,7 @@ from query import Query
 from interface.styling import *
 
 
-class QueryUI(tk.Frame):
+class QueryUI(tk.Toplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -34,9 +34,16 @@ class QueryUI(tk.Frame):
         submit_button = tkmac.Button(upper_frame, text='Submit', command=self._submit)
         submit_button.pack(side=tk.TOP, anchor='center')
 
+        return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_mainmenu)
+        return_button.pack(side=tk.TOP, anchor='center')
+
     def _submit(self):
         tkinter.messagebox.showinfo("Contact Tracing", "Query successfully created")
         query = Query(self._full_name.get('1.0', 'end-1c'))
         query.publish_query()
         self._full_name.delete('1.0', 'end-1c')
         del query
+
+    def _back_to_mainmenu(self):
+        self.master.deiconify()
+        self.destroy()

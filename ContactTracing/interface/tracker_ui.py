@@ -8,7 +8,7 @@ from datetime import datetime
 from interface.styling import *
 
 
-class TrackerUI(tk.Frame):
+class TrackerUI(tk.Toplevel):
     def __init__(self, tracker, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -32,6 +32,9 @@ class TrackerUI(tk.Frame):
         # Create grid
         display_grid = tkmac.Button(upper_frame, text='Display grid', command=self._display_grid)
         display_grid.pack(side=tk.TOP, anchor='center')
+
+        return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_mainmenu)
+        return_button.pack(side=tk.TOP, anchor='center')
 
     def _add_infected_person(self):
         self._popup_window = tk.Toplevel(self)
@@ -124,3 +127,7 @@ class TrackerUI(tk.Frame):
             to_color = self._tracker.get_close_contact(self._grid_name.get('1.0', 'end-1c'))
             self._grid.draw_grid(10, 10, to_color, self._grid_name.get('1.0', 'end-1c'))
             self._grid_name.delete('1.0', 'end-1c')
+
+    def _back_to_mainmenu(self):
+        self.master.deiconify()
+        self.destroy()
