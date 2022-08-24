@@ -52,10 +52,16 @@ class RootComponent(tk.Tk):
         # Change interfaces as users interact with the application
         self.withdraw()
 
+        '''
+        These determine the coordinates so the popup window is centered on the screen
+        '''
+        x = self.winfo_x()
+        y = self.winfo_y()
+
         # create widgets based on the chosen mode
         if mode == 'person':
             ui = PersonUI(self)
-            ui.geometry(PERSON_WINDOW)
+            ui.geometry("+%d+%d" % (x, y))
             ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
 
         elif mode == 'query':
