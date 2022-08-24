@@ -18,7 +18,7 @@ class RootComponent(tk.Tk):
         self.eval('tk::PlaceWindow . center')
         self.geometry(MAIN_WINDOW)
         self.resizable(True, True)
-        self.title('Contract Tracing')
+        self.title('Tracker')
         self.protocol('WM_DELETE_WINDOW', self._on_closing)
 
         self.tracker = Tracker()
