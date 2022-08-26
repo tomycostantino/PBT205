@@ -6,11 +6,14 @@ import tkinter.messagebox
 from interface.grid import Grid
 from datetime import datetime
 from interface.styling import *
+from interface.geometry import *
 
 
 class TrackerUI(tk.Toplevel):
     def __init__(self, tracker, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.geometry(TRACKER_WINDOW)
 
         self._tracker = tracker
 

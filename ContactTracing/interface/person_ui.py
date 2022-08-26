@@ -88,6 +88,9 @@ class PersonUI(tk.Toplevel):
         full_name.delete('1.0', 'end-1c')
         phone_number.delete('1.0', 'end-1c')
 
+        '''
+        Come back and work on this part later
+        '''
         # Create a tuple for the grid size
         grid_size = (10, 10)
 
@@ -106,6 +109,3 @@ class PersonUI(tk.Toplevel):
         '''
         self.master.deiconify()
         self.destroy()
-
-
-

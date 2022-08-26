@@ -5,11 +5,14 @@ import tkinter.messagebox
 
 from query import Query
 from interface.styling import *
+from interface.geometry import *
 
 
 class QueryUI(tk.Toplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.geometry(QUERY_WINDOW)
 
         # Create frames to split UI
         upper_frame = tk.Frame(self, width=200, height=75)

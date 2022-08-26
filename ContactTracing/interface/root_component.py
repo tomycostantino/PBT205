@@ -52,26 +52,20 @@ class RootComponent(tk.Tk):
         # Change interfaces as users interact with the application
         self.withdraw()
 
-        '''
-        These determine the coordinates so the popup window is centered on the screen
-        '''
-        x = self.winfo_x()
-        y = self.winfo_y()
-
         # create widgets based on the chosen mode
         if mode == 'person':
             ui = PersonUI(self)
-            ui.geometry("+%d+%d" % (x, y))
+            ui.geometry("+%d+%d" % (self._center_popup(PERSON_WINDOW)))
             ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
 
         elif mode == 'query':
             ui = QueryUI(self)
-            ui.geometry(QUERY_WINDOW)
+            ui.geometry("+%d+%d" % (self._center_popup(QUERY_WINDOW)))
             ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
 
         elif mode == 'tracker':
             ui = TrackerUI(self.tracker, self)
-            ui.geometry(TRACKER_WINDOW)
+            ui.geometry("+%d+%d" % (self._center_popup(TRACKER_WINDOW)))
             ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
 
     def _on_closing(self):
@@ -85,3 +79,29 @@ class RootComponent(tk.Tk):
         # Destroy the current window and return to the start window
         ui.destroy()
         self.deiconify()
+
+    def _center_popup(self, size):
+
+        '''
+        # Center the popup window on the screen
+        :param size:
+        :return:
+        '''
+
+        '''
+        Calculate the center of the screen
+        '''
+        x_center = self.winfo_screenwidth() / 2
+        y_center = self.winfo_screenheight() / 2
+
+        '''
+        Split the values as the size param comes in as a string in format: 180x100
+        '''
+        size_str = size.split('x')
+        x = int(size_str[0])
+        y = int(size_str[1])
+
+        '''
+        Return the value to begin the popup window so the center is aligned with the center of the screen
+        '''
+        return (x_center - (x / 2), y_center - (y / 2))
