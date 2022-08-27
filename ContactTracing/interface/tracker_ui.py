@@ -3,6 +3,7 @@ import tkinter as tk
 import tkmacosx as tkmac
 import tkinter.messagebox
 
+from interface.query_ui import QueryUI
 from interface.grid import Grid
 from datetime import datetime
 from interface.styling import *
@@ -35,6 +36,10 @@ class TrackerUI(tk.Toplevel):
         # Create grid
         display_grid = tkmac.Button(upper_frame, text='Display grid', command=self._display_grid)
         display_grid.pack(side=tk.TOP, anchor='center')
+
+        query_button = tkmac.Button(upper_frame, text="Query",
+                                    command=lambda: self._create_window(query_button.cget("text").lower()))
+        query_button.pack(side=tk.TOP, anchor='center')
 
         return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_mainmenu)
         return_button.pack(side=tk.TOP, anchor='center')
@@ -134,3 +139,35 @@ class TrackerUI(tk.Toplevel):
     def _back_to_mainmenu(self):
         self.master.deiconify()
         self.destroy()
+
+    def _create_window(self, mode: str):
+        if mode == 'query':
+            ui = QueryUI(self)
+            ui.geometry("+%d+%d" % (self._center_popup(QUERY_WINDOW)))
+            # ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
+
+    def _center_popup(self, size):
+
+        '''
+        # Center the popup window on the screen
+        :param size:
+        :return:
+        '''
+
+        '''
+        Calculate the center of the screen
+        '''
+        x_center = self.winfo_screenwidth() / 2
+        y_center = self.winfo_screenheight() / 2
+
+        '''
+        Split the values as the size param comes in as a string in format: 180x100
+        '''
+        size_str = size.split('x')
+        x = int(size_str[0])
+        y = int(size_str[1])
+
+        '''
+        Return the value to begin the popup window so the center is aligned with the center of the screen
+        '''
+        return (x_center - (x / 2), y_center - (y / 2))

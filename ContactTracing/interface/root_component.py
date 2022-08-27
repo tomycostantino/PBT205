@@ -4,7 +4,6 @@ import tkmacosx as tkmac
 
 from tracker import Tracker
 from tkinter.messagebox import askquestion
-from interface.query_ui import QueryUI
 from interface.person_ui import PersonUI
 from interface.tracker_ui import TrackerUI
 from interface.geometry import *
@@ -37,10 +36,6 @@ class RootComponent(tk.Tk):
                                      command=lambda: self._create_window(person_button.cget("text").lower()))
         person_button.pack(side=tk.TOP, anchor='center')
 
-        query_button = tkmac.Button(commands_frame, text="Query",
-                                    command=lambda: self._create_window(query_button.cget("text").lower()))
-        query_button.pack(side=tk.TOP, anchor='center')
-
         tracker_button = tkmac.Button(commands_frame, text='Tracker',
                                       command=lambda: self._create_window(tracker_button.cget("text").lower()))
         tracker_button.pack(side=tk.TOP, anchor='center')
@@ -56,11 +51,6 @@ class RootComponent(tk.Tk):
         if mode == 'person':
             ui = PersonUI(self)
             ui.geometry("+%d+%d" % (self._center_popup(PERSON_WINDOW)))
-            ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
-
-        elif mode == 'query':
-            ui = QueryUI(self)
-            ui.geometry("+%d+%d" % (self._center_popup(QUERY_WINDOW)))
             ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
 
         elif mode == 'tracker':
