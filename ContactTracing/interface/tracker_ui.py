@@ -4,8 +4,8 @@ import tkmacosx as tkmac
 import tkinter.messagebox
 
 from interface.query_ui import QueryUI
-from interface.grid import Grid
-from datetime import datetime
+from interface.grid_ui import GridUI
+from interface.add_infected_ui import AddInfectedUI
 from interface.styling import *
 from interface.geometry import *
 
@@ -22,81 +22,31 @@ class TrackerUI(tk.Toplevel):
         upper_frame = tk.Frame(self)
         upper_frame.pack(side=tk.TOP, expand=True, fill='both')
 
-        lower_frame = tk.Frame(self, width=200, height=75)
-        lower_frame.pack(side=tk.BOTTOM, expand=True, fill='both')
+        lower_frame = tk.Frame(self)
+        lower_frame.pack(side=tk.TOP, expand=True, fill='both')
 
         # Title
-        label = tk.Label(upper_frame, text='You are in Tracker mode', fg='black', font=("Calibri", 14, "bold"))
+        label = tk.Label(upper_frame, text='Actions', fg='black', font=HEADER)
         label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
-        # In a future this button should open a window to search the database from the GUI
-        add_infected = tkmac.Button(upper_frame, text='Add infected person', command=self._add_infected_person)
+        add_infected = tkmac.Button(upper_frame, text='Add infected person', width=150,
+                                    command=self._create_add_infected_window)
         add_infected.pack(side=tk.TOP, anchor='center')
 
         # Create grid
-        display_grid = tkmac.Button(upper_frame, text='Display grid', command=self._display_grid)
+        display_grid = tkmac.Button(upper_frame, text='Display grid', width=150, command=self._display_grid)
         display_grid.pack(side=tk.TOP, anchor='center')
 
-        query_button = tkmac.Button(upper_frame, text="Query",
-                                    command=lambda: self._create_window(query_button.cget("text").lower()))
+        query_button = tkmac.Button(upper_frame, text="Query", width=150,
+                                    command=self._create_query_window)
         query_button.pack(side=tk.TOP, anchor='center')
 
         return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_mainmenu)
         return_button.pack(side=tk.TOP, anchor='center')
 
-    def _add_infected_person(self):
-        self._popup_window = tk.Toplevel(self)
-        self._popup_window.wm_title("Add infected person")
-        # self._popup_window.geometry("300x150")
-
-        label = tk.Label(self._popup_window, text='Please enter name of the person\n you want to mark as infected:', fg='black', font=LABEL)
-        label.pack(side=tk.TOP, expand=False, anchor='center')
-
-        self._full_name = tk.Text(self._popup_window, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
-        self._full_name.pack(side=tk.TOP)
-
-        label = tk.Label(self._popup_window, text='Insert the infected date dd/mm/yyyy \n'
-                                                  'Leave in blank for today', fg='black', font=LABEL)
-        label.pack(side=tk.TOP, expand=False, anchor='center')
-
-        self._infected_date = tk.Text(self._popup_window, height=3, width=20, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
-        self._infected_date.pack(side=tk.TOP)
-
-        submit_button = tkmac.Button(self._popup_window, text='Submit',
-                                     command=lambda: self._submit_infected_person(self._full_name.get('1.0', 'end-1c')))
-        submit_button.pack(side=tk.TOP, anchor='center')
-
-    def _submit_infected_person(self, personId: str):
-
-        if len(personId) == 0:
-            tkinter.messagebox.showinfo("Contact Tracing", "Please enter a name")
-            return
-
-        else:
-            if self._tracker.check_if_person_exists('currently_infected_people', personId):
-                tkinter.messagebox.showinfo("Contact Tracing", "Person already infected")
-
-            elif self._tracker.check_if_person_exists('positions', personId):
-                if self._infected_date.get('1.0', 'end-1c') == '':
-                    # Get current time
-                    now = datetime.now()
-                    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-                    # Split date and time to have them separated
-                    dt = dt_string.split(' ')
-                    self._tracker.add_infected_person(personId, dt[0])
-
-                else:
-                    self._tracker.add_infected_person(personId, self._infected_date.get('1.0', 'end-1c'))
-
-                tkinter.messagebox.showinfo("Contact Tracing", "Person successfully added")
-                self._full_name.delete('1.0', 'end-1c')
-                self._infected_date.delete('1.0', 'end-1c')
-                self._popup_window.destroy()
-
-            else:
-                tkinter.messagebox.showinfo("Contact Tracing", "No registry of such person\n"
-                                                               "so it cannot be marked as infected")
-                self._full_name.delete('1.0', 'end-1c')
+    def _create_add_infected_window(self):
+        add_infected_ui = AddInfectedUI(self._tracker, self)
+        add_infected_ui.geometry("+%d+%d" % (self._center_popup(ADD_INFECTED_WINDOW)))
 
     def _display_grid(self):
         self._popup_window = tk.Toplevel(self)
@@ -114,7 +64,7 @@ class TrackerUI(tk.Toplevel):
         submit_button = tkmac.Button(self._popup_window, text='Submit', command=self._submit_grid)
         submit_button.pack(side=tk.TOP, anchor='center')
 
-        self._grid = Grid(self._popup_window)
+        self._grid = GridUI(self._popup_window)
         self._grid.pack(side=tk.TOP, expand=True, fill='both')
 
     def _submit_grid(self):
@@ -136,17 +86,11 @@ class TrackerUI(tk.Toplevel):
             self._grid.draw_grid(10, 10, to_color, self._grid_name.get('1.0', 'end-1c'))
             self._grid_name.delete('1.0', 'end-1c')
 
-    def _back_to_mainmenu(self):
-        self.master.deiconify()
-        self.destroy()
+    def _create_query_window(self):
+        ui = QueryUI(self)
+        ui.geometry("+%d+%d" % (self._center_popup(QUERY_WINDOW)))
 
-    def _create_window(self, mode: str):
-        if mode == 'query':
-            ui = QueryUI(self)
-            ui.geometry("+%d+%d" % (self._center_popup(QUERY_WINDOW)))
-            # ui.protocol('WM_DELETE_WINDOW', lambda: self._back_to_start(ui))
-
-    def _center_popup(self, size):
+    def _center_popup(self, size: str) -> tuple:
 
         '''
         # Center the popup window on the screen
@@ -170,4 +114,9 @@ class TrackerUI(tk.Toplevel):
         '''
         Return the value to begin the popup window so the center is aligned with the center of the screen
         '''
-        return (x_center - (x / 2), y_center - (y / 2))
+        return x_center - (x / 2), y_center - (y / 2)
+
+    def _back_to_mainmenu(self):
+        self.master.deiconify()
+        self.destroy()
+

@@ -4,7 +4,7 @@ import tkmacosx as tkmac
 from interface.styling import *
 
 
-class Grid(tk.Frame):
+class GridUI(tk.Frame):
     # Class to visualize the grid
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
