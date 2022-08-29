@@ -20,9 +20,17 @@ class MessageBroker:
         # Create a new queue in the broker when we are senders
         self.channel.queue_declare(queue=queue_name)
 
-    def basic_publish(self, exchange: str, routing_key: str, message: str):
-        # Publish a new message on the queue
-        self.channel.basic_publish(exchange=exchange, routing_key=routing_key, body=message)
+    def queue_delete(self, queue_name: str):
+        # Delete the queue
+        self.channel.queue_delete(queue=queue_name)
+
+    def queue_bind(self, exchange: str, queue_name: str):
+        # Bind the queue to the exchange
+        self.channel.queue_bind(exchange=exchange, queue=queue_name)
+
+    def queue_unbind(self, exchange: str, queue_name: str):
+        # Unbind the queue from the exchange
+        self.channel.queue_unbind(exchange=exchange, queue=queue_name)
 
     def JSON_publish(self, exchange: str, routing_key: str, message: dict):
         # Publish a JSON message on the queue, makes it easier when working with that type of data
