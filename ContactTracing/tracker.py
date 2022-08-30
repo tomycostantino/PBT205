@@ -50,21 +50,14 @@ class Tracker:
     def _handle_user_data_get_messages(self, messages):
         for message in messages:
             if message['from'] == 'query':
-                Thread(target=self._handle_query, args=(message,), daemon=True).start()
+                Thread(target=self._handle_names_positions, args=(message,), daemon=True).start()
 
             elif message['from'] == 'grid':
-                if message['type'] == 'names':
-                    response = self._retrieve_all_names()
-                    self._publish_on_queue(message['reply_on'], response)
-
-                elif message['type'] == 'positions':
-                    response = self._retrieve_position(message['about'])
-                    self._publish_on_queue(message['reply_on'], response)
+                Thread(target=self._handle_names_positions, args=(message,), daemon=True).start()
 
             elif message['from'] == 'add_infected':
                 if message['type'] == 'names':
-                    response = self._retrieve_all_names()
-                    self._publish_on_queue(message['reply_on'], response)
+                    Thread(target=self._handle_names_positions, args=(message,), daemon=True).start()
 
                 elif message['type'] == 'add_infected':
                     self.add_infected_person(message['about'], message['date'])
@@ -83,19 +76,26 @@ class Tracker:
         db.close()
         del db
 
-    def _handle_query(self, message):
+    def _handle_names_positions(self, message):
 
         if message['type'] == 'names':
-            response = self._retrieve_all_names()
+            result = self._retrieve_all_names()
+
+            if result:
+                response = self._create_names_response(result)
+            else:
+                response = {'error': 'No names found'}
+
             self._publish_on_queue(message['reply_on'], response)
 
         elif message['type'] == 'positions':
             db_result = self._retrieve_position(message['about'])
-            response = ''
+
             if db_result:
-                response = self._create_query_response(db_result)
+                response = self._create_positions_response(db_result)
             else:
                 response = {'error': 'No results found'}
+                
             self._publish_on_queue(message['reply_on'], response)
 
     def _retrieve_position(self, personId: str):
@@ -114,9 +114,18 @@ class Tracker:
         db.close()
         del db
 
-        return [row for row in db_result]
+        return db_result
 
-    def _create_query_response(self, database_rows):
+    def _create_names_response(self, database_rows):
+        # Create a big dictionary of dictionaries to send over the broker
+        results = dict()
+        idx = 1
+        for row in database_rows:
+            results[idx] = {'name': row[0]}
+            idx += 1
+        return results
+
+    def _create_positions_response(self, database_rows):
         # Create a big dictionary of dictionaries to send over the broker
         results = dict()
         idx = 1
