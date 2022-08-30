@@ -32,6 +32,10 @@ class MessageBroker:
         # Unbind the queue from the exchange
         self.channel.queue_unbind(exchange=exchange, queue=queue_name)
 
+    def exchange_declare(self, exchange: str, exchange_type: str):
+        # Declare an exchange in the broker
+        self.channel.exchange_declare(exchange=exchange, exchange_type=exchange_type)
+
     def JSON_publish(self, exchange: str, routing_key: str, message: dict):
         # Publish a JSON message on the queue, makes it easier when working with that type of data
         self.channel.basic_publish(exchange=exchange, routing_key=routing_key, body=json.dumps(message))

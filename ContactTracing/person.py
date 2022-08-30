@@ -37,7 +37,7 @@ class Person:
         self._actual_position['date'] = dt[0]
         self._actual_position['time'] = dt[1]
 
-        self._msgBroker.JSON_publish('send_to_tracker', 'position', self._actual_position)
+        self._msgBroker.JSON_publish('sent_to_tracker', 'position_queue', self._actual_position)
 
     def _generate_position(self):
         # Will generate a new position to be sent to the broker

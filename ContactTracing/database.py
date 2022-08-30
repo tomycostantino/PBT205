@@ -25,6 +25,12 @@ class Database:
         result = self._cursor.fetchall()
         return True if result else False
 
+    def retrieve_all_names(self):
+        # Retrieve all names from the database
+        self._cursor.execute('SELECT name FROM positions')
+        names = self._cursor.fetchall()
+        return [row for row in names]
+
     def insert_position_data(self, personId: str, position: str, date: str, time: str):
         # Insert new person into database
         self._cursor.execute("INSERT INTO positions VALUES (?, ?, ?, ?)", (personId, position, date, time))

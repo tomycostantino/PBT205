@@ -8,9 +8,11 @@ from message_broker import MessageBroker
 class Tracker:
     def __init__(self):
         endpoint = 'amqps://bueyyocn:Z4EAvfK6ZD5HTAlSPdrmrBfLcSzSX2Hb@vulture.rmq.cloudamqp.com/bueyyocn'
-        self._positionBroker = MessageBroker(endpoint)  # Broker to read position
-        self._queryBroker = MessageBroker(endpoint)     # Broker to read query
-        self._queryPublisher = MessageBroker(endpoint)  # Broker to publish query
+
+        self._positionBroker = MessageBroker(endpoint)  # Broker to read position queue
+        self._userDataBroker = MessageBroker(endpoint)  # Broker to read user_data_get queue
+
+        self._publisher = MessageBroker(endpoint)       # Broker to publish when required
 
         self._running = False
 
@@ -18,21 +20,63 @@ class Tracker:
         # Subscribe to the channels
         # Use a thread to run the function in parallel so it does not get stuck in the receiving loop
         # I created two brokers because they are subscribed to different channels
-        Thread(target=self._positionBroker.subscribe, args=('send_to_tracker', 'position'), daemon=True).start()
-        Thread(target=self._queryBroker.subscribe, args=('send_to_tracker', 'query'), daemon=True).start()
+        self._positionBroker.exchange_declare('sent_to_tracker', 'topic')
+
+        self._positionBroker.queue_declare('position_queue')
+        self._positionBroker.queue_bind('sent_to_tracker', 'position')
+
+        self._userDataBroker.queue_declare('user_data_get')
+        self._userDataBroker.queue_bind('sent_to_tracker', 'user_data_get')
+
+        Thread(target=self._positionBroker.subscribe, args=('sent_to_tracker', 'position_queue'), daemon=True).start()
+        Thread(target=self._userDataBroker.subscribe, args=('sent_to_tracker', 'user_data_get'), daemon=True).start()
 
     def _read_messages(self):
         # Read messages from both queues every second
         threading.Timer(1, self._read_messages).start()
+
         position_message = self._positionBroker.get_messages()
-        query_message = self._queryBroker.get_messages()
+        user_data_message = self._userDataBroker.get_messages()
 
         # Check if the incoming messages are not empty
-        if position_message:
-            self._update_database(position_message)
+        self._handle_position_messages(position_message) if position_message else None
+        self._handle_user_data_get_messages(user_data_message) if user_data_message else None
 
-        elif query_message:
-            self._respond_query(query_message)
+    def _handle_position_messages(self, messages):
+        # Update the database with positions received
+        self._update_database(messages)
+
+    def _handle_user_data_get_messages(self, messages):
+        for message in messages:
+            if message['from'] == 'query':
+                if message['type'] == 'names':
+                    response = self._retrieve_all_names()
+                    self._publish_on_queue(message['reply_on'], response)
+
+                elif message['type'] == 'positions':
+                    response = self._retrieve_position(message['about'])
+                    self._publish_on_queue(message['reply_on'], response)
+
+            elif message['from'] == 'grid':
+                if message['type'] == 'names':
+                    response = self._retrieve_all_names()
+                    self._publish_on_queue(message['reply_on'], response)
+
+                elif message['type'] == 'positions':
+                    response = self._retrieve_position(message['about'])
+                    self._publish_on_queue(message['reply_on'], response)
+
+            elif message['from'] == 'add_infected':
+                if message['type'] == 'names':
+                    response = self._retrieve_all_names()
+                    self._publish_on_queue(message['reply_on'], response)
+
+                elif message['type'] == 'add_infected':
+                    self.add_infected_person(message['about'], message['date'])
+
+    def _publish_on_queue(self, queue_name, message):
+        # Publish a message on a queue
+        self._publisher.JSON_publish('sent_from_tracker', queue_name, message)
 
     def _update_database(self, messages):
         # When a person sends location, update the database
@@ -51,6 +95,15 @@ class Tracker:
         db.close()
         del db
         return db_result
+
+    def _retrieve_all_names(self):
+        # Get all names from the database
+        db = Database()
+        db_result = db.retrieve_all_names()
+        db.close()
+        del db
+
+        return [row for row in db_result]
 
     def _create_query_response(self, database_rows):
         # Create a big dictionary of dictionaries to send over the broker
@@ -71,12 +124,12 @@ class Tracker:
         # If we know the person we give all info
         if db_result:
             results = self._create_query_response(db_result)
-            self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', results)
+            self._publisher.JSON_publish('sent_from_tracker', 'query_response', results)
 
         # If person not found, send a message saying so
         else:
             errorMessage = {'error': 'No results found'}
-            self._queryPublisher.JSON_publish('sent_from_tracker', 'query_response', errorMessage)
+            self._publisher.JSON_publish('sent_from_tracker', 'query_response', errorMessage)
 
     def check_if_person_exists(self, table: str, personId: str) -> bool:
         # Check if a person exists in the database
