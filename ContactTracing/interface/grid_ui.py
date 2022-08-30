@@ -1,45 +1,83 @@
 # Tomas Costantino - A00042881
 import tkinter as tk
 import tkmacosx as tkmac
+from grid import Grid
 from interface.styling import *
+from interface.geometry import *
 
 
-class GridUI(tk.Frame):
+class GridUI(tk.Toplevel):
     # Class to visualize the grid
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._canvas = tk.Canvas(self, width=500, height=500)
+
+        self.geometry(GRID_WINDOW)
+
+        self._grid = Grid()
+
+        # Create frames to split UI
+        upper_frame = tk.Frame(self)
+        upper_frame.pack(side=tk.TOP, expand=True, fill='both')
+
+        lower_frame = tk.Frame(self)
+        lower_frame.pack(side=tk.TOP, expand=True, fill='both')
+
+        # Title
+        label = tk.Label(upper_frame, text='You are in Grid mode', fg='black', font=HEADER)
+        label.pack(side=tk.TOP, expand=False, anchor='center')
+
+        # Grid widgets
+        grid_name = tk.Text(upper_frame, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
+        grid_name.pack(side=tk.TOP)
+
+        # When the button is pressed it will send the data to the tracker and wait for a response
+        submit_button = tkmac.Button(upper_frame, text='Submit', command=lambda: self._submit(grid_name))
+        submit_button.pack(side=tk.TOP, anchor='center')
+
+        self._canvas = tk.Canvas(lower_frame, width=500, height=500)
         self._canvas.pack(side=tk.TOP, expand=True, fill='both')
 
         self._user_data = []
         self._buttons = []
 
-    def _create_canvas(self, rows, columns, data):
+    def _submit(self, grid_name: tk.Text):
+        self._grid.publish_query(grid_name.get('1.0', 'end-1c'))
+
+        data = []
+        while not data:
+            data = self._grid.get_messages()
+
+        self.draw_grid(10, 10, data, grid_name.get('1.0', 'end-1c'))
+        grid_name.delete('1.0', 'end')
+
+    def _create_canvas(self, n_rows, n_columns, data):
         # Draw the canvas grid with the buttons in it
         self._user_data = data
-
+        print(self._user_data)
         # Lists of positions that are close contacts
-        to_color = [tuple(map(int, color['position'].split(', '))) for color in data]
+        to_color = [tuple(map(int, color[2].split(', '))) for color in data]
         idx = 0
-        for i in range(1, rows + 1):
+        for i in range(1, n_rows + 1):
             # Draw rows
-            for j in range(1, columns + 1):
+            for j in range(1, n_columns + 1):
                 # Draw columns
                 if (i, j) in to_color:
                     self._buttons.append(tkmac.Button(self._canvas, text='{}, {}'.format(i, j), bg='red',
-                                                      command=lambda c=idx: self._display_info(self._buttons[c].cget("text"))))
+                                                      command=lambda c=idx: self._display_info(
+                                                          self._buttons[c].cget("text"))))
                     self._buttons[idx].grid(row=i, column=j)
 
                     self._canvas.create_window(j * 50, i * 50, window=self._buttons[idx])
-                    self._canvas.create_window((i * 50) + 25, (j * 50) + 25, window=self._buttons[idx], anchor='center', width=50, height=50)
+                    self._canvas.create_window((i * 50) + 25, (j * 50) + 25, window=self._buttons[idx], anchor='center',
+                                               width=50, height=50)
 
                     idx += 1
                 else:
                     # Draw grey rectangle if not in color
-                    self._canvas.create_rectangle(i*50, j*50, (i+1)*50, (j+1)*50, fill='grey')
+                    self._canvas.create_rectangle(i * 50, j * 50, (i + 1) * 50, (j + 1) * 50, fill='grey')
 
     def _get_position_index(self, position):
-        positions_list = [tuple(map(int, color['position'].split(', '))) for color in self._user_data]
+        positions_list = [tuple(map(int, color[2].split(', '))) for color in self._user_data]
         for p in positions_list:
             if p[0] == position[0] and p[1] == position[1]:
                 return positions_list.index(p)
@@ -65,7 +103,7 @@ class GridUI(tk.Frame):
         index = self._get_position_index(p_tuple)
         data = self._user_data[index]
 
-        infected_label = tk.Label(popup, text='Infected person: {}'.format(data['infected_person']), fg='black',
+        infected_label = tk.Label(popup, text='Infected person: {}'.format(data['infected']), fg='black',
                                   font=LABEL)
         infected_label.pack(side=tk.TOP, expand=False, anchor='center')
 
@@ -77,4 +115,3 @@ class GridUI(tk.Frame):
 
         position_label = tk.Label(popup, text='Position: {}'.format(data['position']), fg='black', font=LABEL)
         position_label.pack(side=tk.TOP, expand=False, anchor='center')
-

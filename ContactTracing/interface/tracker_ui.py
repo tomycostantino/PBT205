@@ -34,7 +34,7 @@ class TrackerUI(tk.Toplevel):
         add_infected.pack(side=tk.TOP, anchor='center')
 
         # Create grid
-        display_grid = tkmac.Button(upper_frame, text='Display grid', width=150, command=self._display_grid)
+        display_grid = tkmac.Button(upper_frame, text='Display grid', width=150, command=self._create_grid_window)
         display_grid.pack(side=tk.TOP, anchor='center')
 
         query_button = tkmac.Button(upper_frame, text="Query", width=150,
@@ -48,25 +48,10 @@ class TrackerUI(tk.Toplevel):
         add_infected_ui = AddInfectedUI(self._tracker, self)
         add_infected_ui.geometry("+%d+%d" % (self._center_popup(ADD_INFECTED_WINDOW)))
 
-    def _display_grid(self):
-        self._popup_window = tk.Toplevel(self)
-        self._popup_window.wm_title("Display grid")
-        self._popup_window.geometry("600x700")
-        # Title
-        label = tk.Label(self._popup_window, text='You are in Grid mode', fg='black', font=HEADER)
-        label.pack(side=tk.TOP, expand=False, anchor='center')
-
-        # Grid widgets
-        self._grid_name = tk.Text(self._popup_window, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
-        self._grid_name.pack(side=tk.TOP)
-
-        # When the button is pressed it will send the data to the tracker and wait for a response
-        submit_button = tkmac.Button(self._popup_window, text='Submit', command=self._submit_grid)
-        submit_button.pack(side=tk.TOP, anchor='center')
-
-        self._grid = GridUI(self._popup_window)
-        self._grid.pack(side=tk.TOP, expand=True, fill='both')
-
+    def _create_grid_window(self):
+        ui = GridUI(self)
+        ui.geometry("+%d+%d" % (self._center_popup(GRID_WINDOW)))
+    '''
     def _submit_grid(self):
         name = self._grid_name.get('1.0', 'end-1c')
         if len(name) == 0:
@@ -85,6 +70,7 @@ class TrackerUI(tk.Toplevel):
             to_color = self._tracker.get_close_contact(self._grid_name.get('1.0', 'end-1c'))
             self._grid.draw_grid(10, 10, to_color, self._grid_name.get('1.0', 'end-1c'))
             self._grid_name.delete('1.0', 'end-1c')
+    '''
 
     def _create_query_window(self):
         ui = QueryUI(self)

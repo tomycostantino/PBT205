@@ -15,12 +15,14 @@ class QueryUI(tk.Toplevel):
 
         self.geometry(QUERY_WINDOW)
 
+        self._query = Query()
+
         # Create frames to split UI
-        upper_frame = tk.Frame(self, width=200, height=75)
+        upper_frame = tk.Frame(self)
         upper_frame.pack(side=tk.TOP, expand=True, fill='both')
 
-        lower_frame = tk.Frame(self, width=200, height=75)
-        lower_frame.pack(side=tk.BOTTOM, expand=True, fill='both')
+        lower_frame = tk.Frame(self)
+        lower_frame.pack(side=tk.TOP, expand=True, fill='both')
 
         # Title
         label = tk.Label(upper_frame, text='You are in Query mode', fg='black', font=HEADER)
@@ -31,23 +33,22 @@ class QueryUI(tk.Toplevel):
                                                 'person you want to query:', fg='black', font=LABEL)
         name_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
-        self._full_name = tk.Text(upper_frame, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
-        self._full_name.pack(side=tk.TOP)
+        full_name = tk.Text(upper_frame, height=1, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
+        full_name.pack(side=tk.TOP)
 
         # When the button is pressed it will send the data to the tracker and wait for a response
-        submit_button = tkmac.Button(upper_frame, text='Submit', command=self._submit)
+        submit_button = tkmac.Button(upper_frame, text='Submit', command=lambda: self._submit(full_name))
         submit_button.pack(side=tk.TOP, anchor='center')
 
         return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_mainmenu)
         return_button.pack(side=tk.TOP, anchor='center')
 
-    def _submit(self):
+    def _submit(self, textbox: tk.Text):
         tkinter.messagebox.showinfo("Contact Tracing", "Query successfully created")
-        query = Query()
-        query.publish_query(self._full_name.get('1.0', 'end-1c'))
-        self._full_name.delete('1.0', 'end-1c')
-        del query
+        self._query.publish_query(textbox.get('1.0', 'end-1c'))
+        textbox.delete('1.0', 'end-1c')
 
     def _back_to_mainmenu(self):
+        del self._query
         self.master.deiconify()
         self.destroy()
