@@ -43,8 +43,8 @@ class QueryUI(tk.Toplevel):
 
     def _submit(self):
         tkinter.messagebox.showinfo("Contact Tracing", "Query successfully created")
-        query = Query(self._full_name.get('1.0', 'end-1c'))
-        query.publish_query()
+        query = Query()
+        query.publish_query(self._full_name.get('1.0', 'end-1c'))
         self._full_name.delete('1.0', 'end-1c')
         del query
 

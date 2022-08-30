@@ -6,43 +6,47 @@ from message_broker import MessageBroker
 
 
 class Query:
-    def __init__(self, personId: str = ''):
-        self._personId = personId
+    def __init__(self):
 
-        endpoint = 'amqps://bueyyocn:Z4EAvfK6ZD5HTAlSPdrmrBfLcSzSX2Hb@vulture.rmq.cloudamqp.com/bueyyocn'
-        self._queryPublisher = MessageBroker(endpoint)
-        self._queryConsumer = MessageBroker(endpoint)
+        self._endpoint = 'amqps://bueyyocn:Z4EAvfK6ZD5HTAlSPdrmrBfLcSzSX2Hb@vulture.rmq.cloudamqp.com/bueyyocn'
+        self._publisher = MessageBroker(self._endpoint)
+        self._id = str(self._get_id())
 
-        self._subscribed = False
+    def _get_id(self):
+        return id(self)
 
-    def publish_query(self):
-        # Publishes the identifier of the person asked for
-        message = {'personId': self._personId}
-        self._queryPublisher.JSON_publish('send_to_tracker', 'query', message)
+    def publish_query(self, message):
+        # Create consumer first
+        consumer = MessageBroker(self._endpoint)
+        consumer.queue_declare(self._id)
+        # consumer.queue_bind('sent_from_tracker', self._id)
 
-        # Once query sent now kick off thread to receive if there is something
-        self.get_query()
+        message = {'from': 'query',
+                   'type': 'names' if message == 'names' else 'positions',
+                   'about': message if message != 'names' else 'all',
+                   'reply_on': self._id}
 
-    def get_query(self):
-        # Get the query from the tracker and prints it out to the screen
+        self._publisher.JSON_publish('sent_to_tracker', 'user_data_get', message)
 
-        # If we are not subscribed then subscribe to the query response channel
-        if not self._subscribed:
-            Thread(target=self._subscribe, daemon=True).start()
+        Thread(target=self._subscribe, args=(consumer,), daemon=True).start()
+        Thread(target=self.get_query, args=(consumer,), daemon=True).start()
 
-            # Try to receive the query
-            Thread(target=self.read_messages(), daemon=True).start()
+    def get_query(self, consumer):
+        # Try to receive the query
+        Thread(target=self.read_messages, args=(consumer,), daemon=True).start()
 
-    def read_messages(self):
-        threading.Timer(1, self.read_messages).start()
+    def read_messages(self, consumer):
+        threading.Timer(1, self.read_messages, args=(consumer,)).start()
 
-        messages = self._queryConsumer.get_messages()
+        messages = consumer.get_messages()
         if messages is not None:
             for message in messages[0].items():
                 print(message)
+            del consumer
+            self._publisher.queue_unbind('sent_from_tracker', self._id)
+            self._publisher.queue_delete(self._id)
 
-    def _subscribe(self):
+    def _subscribe(self, consumer):
         # Subscribes to the query response channel
-        self._subscribed = True
-        self._queryConsumer.subscribe('sent_from_tracker', 'query_response')
+        consumer.subscribe('sent_from_tracker', self._id)
     

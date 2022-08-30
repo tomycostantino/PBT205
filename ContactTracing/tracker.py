@@ -21,9 +21,10 @@ class Tracker:
         # Use a thread to run the function in parallel so it does not get stuck in the receiving loop
         # I created two brokers because they are subscribed to different channels
         self._positionBroker.exchange_declare('sent_to_tracker', 'topic')
+        self._positionBroker.exchange_declare('sent_from_tracker', 'topic')
 
         self._positionBroker.queue_declare('position_queue')
-        self._positionBroker.queue_bind('sent_to_tracker', 'position')
+        self._positionBroker.queue_bind('sent_to_tracker', 'position_queue')
 
         self._userDataBroker.queue_declare('user_data_get')
         self._userDataBroker.queue_bind('sent_to_tracker', 'user_data_get')
@@ -49,13 +50,7 @@ class Tracker:
     def _handle_user_data_get_messages(self, messages):
         for message in messages:
             if message['from'] == 'query':
-                if message['type'] == 'names':
-                    response = self._retrieve_all_names()
-                    self._publish_on_queue(message['reply_on'], response)
-
-                elif message['type'] == 'positions':
-                    response = self._retrieve_position(message['about'])
-                    self._publish_on_queue(message['reply_on'], response)
+                Thread(target=self._handle_query, args=(message,), daemon=True).start()
 
             elif message['from'] == 'grid':
                 if message['type'] == 'names':
@@ -88,12 +83,28 @@ class Tracker:
         db.close()
         del db
 
+    def _handle_query(self, message):
+
+        if message['type'] == 'names':
+            response = self._retrieve_all_names()
+            self._publish_on_queue(message['reply_on'], response)
+
+        elif message['type'] == 'positions':
+            db_result = self._retrieve_position(message['about'])
+            response = ''
+            if db_result:
+                response = self._create_query_response(db_result)
+            else:
+                response = {'error': 'No results found'}
+            self._publish_on_queue(message['reply_on'], response)
+
     def _retrieve_position(self, personId: str):
         # Publish what is retrieved from database
         db = Database()
         db_result = db.retrieve_position_data(personId.lower())
         db.close()
         del db
+
         return db_result
 
     def _retrieve_all_names(self):
@@ -113,23 +124,6 @@ class Tracker:
             results[idx] = {'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]}
             idx += 1
         return results
-
-    def _respond_query(self, query):
-        print(query)
-        personId = str(query[0]['personId'])
-        print(personId)
-        db_result = self._retrieve_position(personId)
-
-        # See if what retrieved is empty
-        # If we know the person we give all info
-        if db_result:
-            results = self._create_query_response(db_result)
-            self._publisher.JSON_publish('sent_from_tracker', 'query_response', results)
-
-        # If person not found, send a message saying so
-        else:
-            errorMessage = {'error': 'No results found'}
-            self._publisher.JSON_publish('sent_from_tracker', 'query_response', errorMessage)
 
     def check_if_person_exists(self, table: str, personId: str) -> bool:
         # Check if a person exists in the database
