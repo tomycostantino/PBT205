@@ -48,14 +48,14 @@ class GridUI(tk.Toplevel):
 
         data = []
         while not data:
-            data = self._grid.get_messages()
+            data = self._grid.retrieve_messages()
 
         self.draw_grid(10, 10, data, grid_name.get('1.0', 'end-1c'))
         grid_name.delete('1.0', 'end')
 
     def _create_canvas(self, n_rows, n_columns, data):
         # Draw the canvas grid with the buttons in it
-        self._user_data = data[0]
+        self._user_data = data
 
         # Lists of positions that are close contacts
         to_color = [tuple(map(int, color['position'].split(', '))) for color in self._user_data]

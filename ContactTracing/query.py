@@ -1,6 +1,5 @@
 # Tomas Costantino - A00042881
 import threading
-from time import sleep
 from threading import Thread
 from message_broker import MessageBroker
 
@@ -12,14 +11,59 @@ class Query:
         self._publisher = MessageBroker(self._endpoint)
         self._id = str(self._get_id())
 
+        self._message_queue = []
+
     def _get_id(self):
+        '''
+        Returns the id of the current object.
+        :return:
+        '''
+
         return id(self)
 
+    def _get_query(self, consumer):
+        '''
+        Try to receive the query
+        :param consumer:
+        :return:
+        '''
+
+        Thread(target=self._read_messages, args=(consumer,), daemon=True).start()
+
+    def _read_messages(self, consumer):
+        '''
+        Reads the messages from the query response channel
+        :param consumer:
+        :return:
+        '''
+
+        timer = threading.Timer(1, self._read_messages, args=(consumer,))
+        timer.start()
+
+        messages = consumer.get_messages()
+        if messages is not None:
+            for message in messages[0]:
+                self._message_queue.append(message)
+
+            del consumer
+            self._publisher.queue_unbind('sent_from_tracker', self._id)
+            self._publisher.queue_delete(self._id)
+
+            timer.cancel()
+
+    def _subscribe(self, consumer):
+        # Subscribes to the query response channel
+        consumer.subscribe('sent_from_tracker', self._id)
+
     def publish_query(self, message):
-        # Create consumer first
+        '''
+        Publishes a query to the tracker.
+        :param message:
+        :return:
+        '''
+
         consumer = MessageBroker(self._endpoint)
         consumer.queue_declare(self._id)
-        # consumer.queue_bind('sent_from_tracker', self._id)
 
         message = {'from': 'query',
                    'type': 'names' if message == 'names' else 'positions',
@@ -29,25 +73,15 @@ class Query:
         self._publisher.JSON_publish('sent_to_tracker', 'user_data_get', message)
 
         Thread(target=self._subscribe, args=(consumer,), daemon=True).start()
-        Thread(target=self.get_query, args=(consumer,), daemon=True).start()
+        Thread(target=self._get_query, args=(consumer,), daemon=True).start()
 
-    def get_query(self, consumer):
-        # Try to receive the query
-        Thread(target=self.read_messages, args=(consumer,), daemon=True).start()
+    def retrieve_messages(self):
+        '''
+        Returns the messages in the message queue and clears it
+        :return:
+        '''
 
-    def read_messages(self, consumer):
-        threading.Timer(1, self.read_messages, args=(consumer,)).start()
+        messages = self._message_queue
+        self._message_queue = []
+        return messages
 
-        messages = consumer.get_messages()
-        if messages is not None:
-            for message in messages[0].items():
-                print(message)
-
-            del consumer
-            self._publisher.queue_unbind('sent_from_tracker', self._id)
-            self._publisher.queue_delete(self._id)
-
-    def _subscribe(self, consumer):
-        # Subscribes to the query response channel
-        consumer.subscribe('sent_from_tracker', self._id)
-    
