@@ -107,5 +107,6 @@ class PersonUI(tk.Toplevel):
         '''
         Bring back master window and destroy this one
         '''
+
         self.master.deiconify()
         self.destroy()

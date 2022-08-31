@@ -47,7 +47,7 @@ class Tracker:
         '''
 
         # Read messages from both queues every second
-        threading.Timer(1, self._read_messages).start()
+        threading.Timer(0.1, self._read_messages).start()
 
         position_message = self._positionBroker.get_messages()
         user_data_message = self._userDataBroker.get_messages()
@@ -116,8 +116,6 @@ class Tracker:
         :param message:
         :return:
         '''
-
-        print(message)
 
         if message['type'] == 'names':
             result = self._retrieve_all_names()

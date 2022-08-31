@@ -37,6 +37,9 @@ class GridUI(tk.Toplevel):
         self._canvas = tk.Canvas(lower_frame, width=500, height=500)
         self._canvas.pack(side=tk.TOP, expand=True, fill='both')
 
+        return_button = tkmac.Button(lower_frame, text='Return home', width=130, command=self._back_to_mainmenu)
+        return_button.pack(side=tk.TOP, anchor='center', pady=30)
+
         self._user_data = []
         self._buttons = []
 
@@ -53,7 +56,7 @@ class GridUI(tk.Toplevel):
     def _create_canvas(self, n_rows, n_columns, data):
         # Draw the canvas grid with the buttons in it
         self._user_data = data[0]
-        print(self._user_data)
+
         # Lists of positions that are close contacts
         to_color = [tuple(map(int, color['position'].split(', '))) for color in self._user_data]
         idx = 0
@@ -115,3 +118,11 @@ class GridUI(tk.Toplevel):
 
         position_label = tk.Label(popup, text='Position: {}'.format(data['position']), fg='black', font=LABEL)
         position_label.pack(side=tk.TOP, expand=False, anchor='center')
+
+    def _back_to_mainmenu(self):
+        '''
+        Bring back master window and destroy this one
+        '''
+        self.master.deiconify()
+        self.destroy()
+
