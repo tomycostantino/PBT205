@@ -50,7 +50,9 @@ class Grid:
             self._publisher.queue_delete(self._id)
 
     def get_messages(self):
-        return self._message_queue
+        messages = self._message_queue
+        self._message_queue = []
+        return messages
 
     def _subscribe(self, consumer):
         # Subscribes to the query response channel

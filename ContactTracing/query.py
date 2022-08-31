@@ -42,6 +42,7 @@ class Query:
         if messages is not None:
             for message in messages[0].items():
                 print(message)
+
             del consumer
             self._publisher.queue_unbind('sent_from_tracker', self._id)
             self._publisher.queue_delete(self._id)

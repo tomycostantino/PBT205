@@ -54,6 +54,9 @@ class MessageBroker:
             self._messageQueue = []
             return messages
 
+    def stop_consuming(self):
+        self.channel.stop_consuming()
+
     def subscribe(self, exchange: str, queue_name: str):
         # Subscribe to queue
         self.channel.queue_bind(exchange=exchange, queue=queue_name)

@@ -159,10 +159,7 @@ class Tracker:
         for row in result:
             value = {'infected': row[0], 'contact': row[1], 'position': row[2], 'date': row[3]}
             response.append(value)
-            print(value)
-            print(row[0], row[1], row[2], row[3])
 
-        print(response)
         return response
 
     def _retrieve_position(self, personId: str):

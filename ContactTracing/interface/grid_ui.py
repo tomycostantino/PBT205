@@ -52,10 +52,10 @@ class GridUI(tk.Toplevel):
 
     def _create_canvas(self, n_rows, n_columns, data):
         # Draw the canvas grid with the buttons in it
-        self._user_data = data
+        self._user_data = data[0]
         print(self._user_data)
         # Lists of positions that are close contacts
-        to_color = [tuple(map(int, color['position'].split(', '))) for color in data[0]]
+        to_color = [tuple(map(int, color['position'].split(', '))) for color in self._user_data]
         idx = 0
         for i in range(1, n_rows + 1):
             # Draw rows
