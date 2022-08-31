@@ -40,11 +40,11 @@ class Grid:
         threading.Timer(0.1, self._read_messages, args=(consumer,)).start()
 
         messages = consumer.get_messages()
-        idx = 0
+
         if messages is not None:
-            for message in messages[0][idx].items():
+            for message in messages:
                 self._message_queue.append(message)
-                idx += 1
+
             del consumer
             self._publisher.queue_unbind('sent_from_tracker', self._id)
             self._publisher.queue_delete(self._id)

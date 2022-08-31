@@ -155,8 +155,15 @@ class Tracker:
         :param result:
         :return:
         '''
+        response = []
+        for row in result:
+            value = {'infected': row[0], 'contact': row[1], 'position': row[2], 'date': row[3]}
+            response.append(value)
+            print(value)
+            print(row[0], row[1], row[2], row[3])
 
-        return [{'infected': row[0], 'contact': row[1], 'position': row[2], 'date': row[3]} for row in result]
+        print(response)
+        return response
 
     def _retrieve_position(self, personId: str):
         '''

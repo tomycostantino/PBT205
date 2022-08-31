@@ -55,7 +55,7 @@ class GridUI(tk.Toplevel):
         self._user_data = data
         print(self._user_data)
         # Lists of positions that are close contacts
-        to_color = [tuple(map(int, color[2].split(', '))) for color in data]
+        to_color = [tuple(map(int, color['position'].split(', '))) for color in data[0]]
         idx = 0
         for i in range(1, n_rows + 1):
             # Draw rows
@@ -77,7 +77,7 @@ class GridUI(tk.Toplevel):
                     self._canvas.create_rectangle(i * 50, j * 50, (i + 1) * 50, (j + 1) * 50, fill='grey')
 
     def _get_position_index(self, position):
-        positions_list = [tuple(map(int, color[2].split(', '))) for color in self._user_data]
+        positions_list = [tuple(map(int, color['position'].split(', '))) for color in self._user_data]
         for p in positions_list:
             if p[0] == position[0] and p[1] == position[1]:
                 return positions_list.index(p)
