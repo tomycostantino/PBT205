@@ -45,32 +45,12 @@ class TrackerUI(tk.Toplevel):
         return_button.pack(side=tk.TOP, anchor='center')
 
     def _create_add_infected_window(self):
-        add_infected_ui = AddInfectedUI(self._tracker, self)
+        add_infected_ui = AddInfectedUI(self)
         add_infected_ui.geometry("+%d+%d" % (self._center_popup(ADD_INFECTED_WINDOW)))
 
     def _create_grid_window(self):
         ui = GridUI(self)
         ui.geometry("+%d+%d" % (self._center_popup(GRID_WINDOW)))
-    '''
-    def _submit_grid(self):
-        name = self._grid_name.get('1.0', 'end-1c')
-        if len(name) == 0:
-            tkinter.messagebox.showinfo("Contact Tracing", "Please enter a name")
-            self._grid.clear_canvas()
-            self._grid_name.delete('1.0', 'end-1c')
-            return
-
-        elif not self._tracker.check_if_person_exists('positions', name):
-            tkinter.messagebox.showinfo("Contact Tracing", "No registry of such user")
-            self._grid_name.delete('1.0', 'end-1c')
-            self._grid.clear_canvas()
-            return
-
-        else:
-            to_color = self._tracker.get_close_contact(self._grid_name.get('1.0', 'end-1c'))
-            self._grid.draw_grid(10, 10, to_color, self._grid_name.get('1.0', 'end-1c'))
-            self._grid_name.delete('1.0', 'end-1c')
-    '''
 
     def _create_query_window(self):
         ui = QueryUI(self)

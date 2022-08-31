@@ -1,5 +1,6 @@
 # Tomas Costantino - A00042881
 import sqlite3
+import typing
 from datetime import datetime, date, timedelta
 
 
@@ -25,7 +26,7 @@ class Database:
         result = self._cursor.fetchall()
         return True if result else False
 
-    def retrieve_all_names(self):
+    def retrieve_all_names(self) -> typing.List[dict]:
         # Retrieve all names from the database
         self._cursor.execute('SELECT name FROM positions')
         names = self._cursor.fetchall()
@@ -65,19 +66,19 @@ class Database:
             self._cursor.execute('INSERT INTO close_contacts VALUES (?, ?, ?, ?)', (infected_person, contact, position, date))
             self._conn.commit()
 
-    def retrieve_position_data(self, personId: str):
+    def retrieve_position_data(self, personId: str) -> typing.List[dict]:
         # Query the database for a person's historical position data
         self._cursor.execute("SELECT * FROM positions WHERE name = ?", (personId,))
         positions = self._cursor.fetchall()
         return [row for row in positions]
 
-    def retrieve_close_contact(self, personId: str):
+    def retrieve_all_close_contacts(self, personId: str) -> typing.List[dict]:
         # Retrieve close contacts by person name
         self._cursor.execute('SELECT * FROM close_contacts WHERE infected_person = ? OR contact = ?', (personId, personId))
         close_contacts = self._cursor.fetchall()
         return [row for row in close_contacts]
 
-    def retrieve_all_close_contact(self):
+    def retrieve_close_contacts_table(self) -> typing.List[dict]:
         # Retrieve the whole table of close_contacts
         self._cursor.execute('SELECT * FROM close_contacts')
         close_contacts = self._cursor.fetchall()

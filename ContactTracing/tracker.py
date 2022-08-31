@@ -1,8 +1,12 @@
 # Tomas Costantino - A00042881
+import logging
+import typing
 import threading
-from database import Database
 from threading import Thread
+from database import Database
 from message_broker import MessageBroker
+
+logger = logging.getLogger()
 
 
 class Tracker:
@@ -13,9 +17,21 @@ class Tracker:
         self._positionBroker = MessageBroker(endpoint)  # Broker to read position queue
         self._userDataBroker = MessageBroker(endpoint)  # Broker to read user_data_get queue
 
-        self._publisher = MessageBroker(endpoint)       # Broker to publish when required
+        self._publisher = MessageBroker(endpoint)  # Broker to publish when required
 
         self._running = False
+
+    def _add_log(self, msg: str):
+        '''
+        Add a log to the log file
+        :param msg:
+        :return:
+        '''
+        logger.info('%s', msg)
+
+    '''
+    Broker functions
+    '''
 
     def _subscribe(self):
         '''
@@ -24,7 +40,7 @@ class Tracker:
         '''
 
         '''
-        Create queues and subscribe to them
+        Create queues the tracker reads from and subscribe to them
         Use a thread to run the function in parallel so it does not get stuck in the receiving loop
         '''
 
@@ -46,7 +62,9 @@ class Tracker:
         :return:
         '''
 
-        # Read messages from both queues every second
+        '''
+        Read messages from both queues every 0.1 second
+        '''
         threading.Timer(0.1, self._read_messages).start()
 
         position_message = self._positionBroker.get_messages()
@@ -80,35 +98,7 @@ class Tracker:
                 Thread(target=self._handle_message, args=(message,), daemon=True).start()
 
             elif message['from'] == 'add_infected':
-                if message['type'] == 'names':
-                    Thread(target=self._handle_message, args=(message,), daemon=True).start()
-
-                elif message['type'] == 'add_infected':
-                    self.add_infected_person(message['about'], message['date'])
-
-    def _publish_on_queue(self, queue_name: str, message):
-        '''
-        Publish on a queue
-        :param queue_name:
-        :param message:
-        :return:
-        '''
-
-        self._publisher.JSON_publish('sent_from_tracker', queue_name, message)
-
-    def _update_database(self, messages: list):
-        '''
-        Update the database with positions received
-        :param messages:
-        :return:
-        '''
-
-        # I create database here and then delete because it can only be used in the thread that it is created in
-        print(messages)
-        db = Database()
-        [db.insert_position_data(message['personId'].lower(), message['position'], message['date'], message['time']) for message in messages]
-        db.close()
-        del db
+                Thread(target=self._handle_message, args=(message,), daemon=True).start()
 
     def _handle_message(self, message: dict):
         '''
@@ -128,7 +118,7 @@ class Tracker:
             self._publish_on_queue(message['reply_on'], response)
 
         elif message['type'] == 'positions':
-            db_result = self._retrieve_position(message['about'])
+            db_result = self._retrieve_all_positions(message['about'])
 
             if db_result:
                 response = self._create_positions_response(db_result)
@@ -138,7 +128,7 @@ class Tracker:
             self._publish_on_queue(message['reply_on'], response)
 
         elif message['type'] == 'close_contacts':
-            db_result = self.get_close_contact(message['about'])
+            db_result = self._retrieve_all_close_contacts(message['about'])
 
             if db_result:
                 response = self._create_close_contacts_response(db_result)
@@ -147,20 +137,82 @@ class Tracker:
 
             self._publish_on_queue(message['reply_on'], response)
 
-    def _create_close_contacts_response(self, result: list):
+        elif message['type'] == 'new_infection':
+            self._add_infected_person(message['about'], message['date'])
+
+    def _publish_on_queue(self, queue_name: str, message):
+        '''
+        Publish on a queue
+        :param queue_name:
+        :param message:
+        :return:
+        '''
+
+        self._publisher.JSON_publish('sent_from_tracker', queue_name, message)
+
+    def _create_close_contacts_response(self, database_rows: list) -> typing.List[dict]:
         '''
         Create a response for the grid
         :param result:
         :return:
         '''
-        response = []
-        for row in result:
+
+        close_contacts = []
+        for row in database_rows:
             value = {'infected': row[0], 'contact': row[1], 'position': row[2], 'date': row[3]}
-            response.append(value)
+            close_contacts.append(value)
 
-        return response
+        return close_contacts
 
-    def _retrieve_position(self, personId: str):
+    def _create_names_response(self, database_rows: list) -> typing.List[str]:
+        '''
+        Create a response for the names queue
+        :param database_rows:
+        :return:
+        '''
+
+        names = []
+        for name in database_rows:
+            if name[0] not in names:
+                names.append(name[0])
+
+        return names
+
+    def _create_positions_response(self, database_rows: list) -> typing.List[dict]:
+        '''
+        Create a response for the positions queue
+        :param database_rows:
+        :return:
+        '''
+
+        positions = []
+
+        for row in database_rows:
+            positions.append({'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]})
+
+        return positions
+
+    '''
+    Database functions
+    '''
+
+    def _update_database(self, messages: list):
+        '''
+        Update the database with positions received
+        :param messages:
+        :return:
+        '''
+
+        '''
+        I create database here and then delete because it can only be used in the thread that it is created in
+        '''
+        db = Database()
+        [db.insert_position_data(message['personId'].lower(), message['position'], message['date'], message['time']) for
+         message in messages]
+        db.close()
+        del db
+
+    def _retrieve_all_positions(self, personId: str) -> typing.List[dict]:
         '''
         Retrieve the position of a person from the database
         :param personId:
@@ -174,7 +226,7 @@ class Tracker:
 
         return db_result
 
-    def _retrieve_all_names(self):
+    def _retrieve_all_names(self) -> typing.List[dict]:
         '''
         Retrieve all the names from the database
         :return:
@@ -187,33 +239,19 @@ class Tracker:
 
         return db_result
 
-    def _create_names_response(self, database_rows: list):
+    def _retrieve_all_close_contacts(self, personId: str) -> typing.List[dict]:
         '''
-        Create a response for the names queue
-        :param database_rows:
+        Get the close contact of a person
+        :param personId:
         :return:
         '''
 
-        results = dict()
-        idx = 1
-        for row in database_rows:
-            results[idx] = {'name': row[0]}
-            idx += 1
-        return results
+        db = Database()
+        db_result = db.retrieve_all_close_contacts(personId.lower())
+        db.close()
+        del db
 
-    def _create_positions_response(self, database_rows):
-        '''
-        Create a response for the positions queue
-        :param database_rows:
-        :return:
-        '''
-
-        results = dict()
-        idx = 1
-        for row in database_rows:
-            results[idx] = {'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]}
-            idx += 1
-        return results
+        return db_result
 
     def check_if_person_exists(self, table: str, personId: str) -> bool:
         '''
@@ -230,7 +268,7 @@ class Tracker:
 
         return True if db_result else False
 
-    def add_infected_person(self, personId: str, date: str):
+    def _add_infected_person(self, personId: str, date: str):
         '''
         Add a person to the infected table
         :param personId:
@@ -242,25 +280,11 @@ class Tracker:
         db.close()
         del db
 
-    def get_close_contact(self, personId: str):
-        '''
-        Get the close contact of a person
-        :param personId:
-        :return:
-        '''
-
-        db = Database()
-        db_result = db.retrieve_close_contact(personId.lower())
-        db.close()
-        del db
-
-        return db_result
-
-    def get_all_close_contacts(self):
+    def _get_close_contacts_table(self):
         # Get all history of close contacts and print out the result
         # It will later be used to be displayed in the UI
         db = Database()
-        db_result = db.retrieve_all_close_contact()
+        db_result = db.retrieve_close_contacts_table()
         db.close()
         del db
 
@@ -271,6 +295,7 @@ class Tracker:
         Check if a person has recovered
         :return:
         '''
+
         threading.Timer(10, self._check_for_recovery).start()
         db = Database()
         db.check_for_recovered_persons()
