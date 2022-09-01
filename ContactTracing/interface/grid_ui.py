@@ -2,6 +2,7 @@
 import tkinter as tk
 import tkmacosx as tkmac
 from grid import Grid
+from interface.autocomplete_widget import Autocomplete
 from interface.styling import *
 from interface.geometry import *
 

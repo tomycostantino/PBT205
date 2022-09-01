@@ -37,7 +37,7 @@ class Query:
         :return:
         '''
 
-        timer = threading.Timer(1, self._read_messages, args=(consumer,))
+        timer = threading.Timer(0.1, self._read_messages, args=(consumer,))
         timer.start()
 
         messages = consumer.get_messages()
@@ -85,3 +85,18 @@ class Query:
         self._message_queue = []
         return messages
 
+    def get_all_names(self):
+        '''
+        Returns all the names in the message queue and clears it
+        :return:
+        '''
+
+        self.publish_query('names')
+
+        message = []
+        while not message:
+            message = self.retrieve_messages()
+
+        message = [msg.upper() for msg in message]
+
+        return message

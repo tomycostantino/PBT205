@@ -2,6 +2,7 @@ import tkinter as tk
 import tkmacosx as tkmac
 import tkinter.messagebox
 from add_infected import AddInfected
+from interface.autocomplete_widget import Autocomplete
 from interface.styling import *
 from interface.geometry import *
 from datetime import datetime
