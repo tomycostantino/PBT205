@@ -36,7 +36,8 @@ class QueryUI(tk.Toplevel):
                                                 'person you want to query:', fg='black', font=LABEL)
         name_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
-        self._full_name = Autocomplete([], self._upper_frame, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
+        self._full_name = Autocomplete([], self._upper_frame, fg=TEXTBOX_FG, justify=tk.CENTER,
+                                           insertbackground=TEXTBOX_FG, bg=TEXTBOX_BG, highlightthickness=False)
         self._full_name.pack(side=tk.TOP)
 
         # When the button is pressed it will send the data to the tracker and wait for a response
@@ -48,8 +49,8 @@ class QueryUI(tk.Toplevel):
 
     def _submit(self, textbox):
         tkinter.messagebox.showinfo("Contact Tracing", "Query successfully created")
-        self._query.publish_query(textbox.get('1.0', 'end-1c'))
-        textbox.delete('1.0', 'end-1c')
+        self._query.publish_query(textbox.get())
+        textbox.delete(0, 'end')
 
     def _back_to_mainmenu(self):
         del self._query
@@ -57,6 +58,5 @@ class QueryUI(tk.Toplevel):
         self.destroy()
 
     def _get_all_names(self):
-        self._names = self._query.get_all_names()
-        self._full_name.update_symbols(self._names)
-        print(self._names)
+        names = self._query.get_all_names()
+        self._full_name.update_symbols(names)
