@@ -5,6 +5,7 @@ import threading
 from threading import Thread
 from database import Database
 from message_broker import MessageBroker
+from messaging import Messaging
 
 logger = logging.getLogger()
 
@@ -18,6 +19,8 @@ class Tracker:
         self._userDataBroker = MessageBroker(endpoint)  # Broker to read user_data_get queue
 
         self._publisher = MessageBroker(endpoint)  # Broker to publish when required
+
+        self._messaging = Messaging()
 
         self._running = False
 
@@ -209,8 +212,25 @@ class Tracker:
         db = Database()
         [db.insert_position_data(message['personId'].lower(), message['position'], message['date'], message['time']) for
          message in messages]
+
+        self._check_close_contact(db, messages)
+
         db.close()
         del db
+
+    def _check_close_contact(self, db: Database, messages: list):
+        for message in messages:
+            contact = db.check_for_close_contact(message['personId'].lower(), message['position'], message['date'])
+            self._messaging.send_message(message['personId'].lower(), self._generate_close_contact_message(message)) if contact else None
+
+    def _generate_close_contact_message(self, message: dict) -> str:
+        '''
+        Generate a message for the user
+        :param message:
+        :return:
+        '''
+
+        return f'You have been in close contact with {message["personId"]} at {message["position"]} on {message["date"]}'
 
     def _retrieve_all_positions(self, personId: str) -> typing.List[dict]:
         '''
