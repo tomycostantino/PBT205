@@ -14,8 +14,8 @@ api_instance = clicksend_client.SMSApi(clicksend_client.ApiClient(configuration)
 
 # If you want to explictly set from, add the key _from to the message.
 sms_message = SmsMessage(source="php",
-                        body="Putito",
-                        to="+61414967328",
+                        body="Deja la manola",
+                        to="+61473114103",
                         schedule=1436874701)
 
 sms_messages = clicksend_client.SmsMessageCollection(messages=[sms_message])
