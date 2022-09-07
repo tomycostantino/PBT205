@@ -95,7 +95,7 @@ class PersonUI(tk.Toplevel):
         grid_size = (10, 10)
 
         # Create a person object and run it
-        person = Person(personId=person_id, movement_speed='5', grid_size=grid_size)
+        person = Person(personId=person_id, contact=contact_number, movement_speed='5', grid_size=grid_size)
         person.run()
 
         '''

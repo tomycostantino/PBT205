@@ -16,7 +16,7 @@ class Database:
         Create the tables in the database
         :return:
         '''
-        self._cursor.execute("CREATE TABLE IF NOT EXISTS positions (name TEXT, position TEXT, date TEXT, time TEXT)")
+        self._cursor.execute("CREATE TABLE IF NOT EXISTS positions (name TEXT, contact TEXT, position TEXT, date TEXT, time TEXT)")
         self._conn.commit()  # Saves the changes
         self._cursor.execute("CREATE TABLE IF NOT EXISTS close_contacts (infected_person TEXT, contact TEXT, position TEXT, date TEXT)")
         self._conn.commit()  # Saves the changes
@@ -44,7 +44,7 @@ class Database:
         names = self._cursor.fetchall()
         return [row for row in names]
 
-    def insert_position_data(self, personId: str, position: str, date: str, time: str):
+    def insert_position_data(self, personId: str, contact: str, position: str, date: str, time: str):
         '''
         Insert a new position data into the database
         :param personId:
@@ -54,7 +54,7 @@ class Database:
         :return:
         '''
 
-        self._cursor.execute("INSERT INTO positions VALUES (?, ?, ?, ?)", (personId, position, date, time))
+        self._cursor.execute("INSERT INTO positions VALUES (?, ?, ?, ?, ?)", (personId, contact, position, date, time))
         self._conn.commit()
 
     def check_for_close_contact(self, personId: str, position: str, date: str):

@@ -8,8 +8,7 @@ from threading import Thread
 
 
 class Person:
-    def __init__(self, personId: str = '', movement_speed: str = '', grid_size: tuple = (10, 10)):
-        self._personId = personId
+    def __init__(self, personId: str = '', contact: str = '', movement_speed: str = '', grid_size: tuple = (10, 10)):
         self._movement_speed = float(movement_speed)
         self._grid_size = grid_size
 
@@ -17,7 +16,8 @@ class Person:
         self._msgBroker = MessageBroker(endpoint)
 
         self._actual_position = dict()
-        self._actual_position['personId'] = self._personId
+        self._actual_position['personId'] = personId
+        self._actual_position['contact'] = contact
 
     def _send_location(self):
         # Send new location to the broker so the tracker updates

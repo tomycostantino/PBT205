@@ -210,8 +210,8 @@ class Tracker:
         I create database here and then delete because it can only be used in the thread that it is created in
         '''
         db = Database()
-        [db.insert_position_data(message['personId'].lower(), message['position'], message['date'], message['time']) for
-         message in messages]
+        [db.insert_position_data(message['personId'].lower(), message['contact'], message['position'], message['date'],
+                                 message['time']) for message in messages]
 
         self._check_close_contact(db, messages)
 
