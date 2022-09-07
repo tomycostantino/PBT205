@@ -57,7 +57,7 @@ class Database:
         self._cursor.execute("INSERT INTO positions VALUES (?, ?, ?, ?, ?)", (personId, contact, position, date, time))
         self._conn.commit()
 
-    def check_for_close_contact(self, personId: str, position: str, date: str):
+    def check_for_close_contact(self, personId: str, contact: str, position: str, date: str):
         '''
         Check if a person is a close contact with someone in the database
         :param personId:
@@ -67,7 +67,8 @@ class Database:
         '''
 
         if self.check_if_person_exists('currently_infected_people', personId):
-            self._cursor.execute('SELECT name FROM positions WHERE name != ? AND position = ? AND date = ?', (personId, position, date))
+            self._cursor.execute('SELECT name FROM positions WHERE name != ? AND contact != ? AND position = ? '
+                                 'AND date = ?', (personId, contact, position, date))
             contacts = self._cursor.fetchall()
             if contacts:
                 [self._add_close_contact(personId, contact[0], position, date) for contact in contacts]
@@ -81,7 +82,8 @@ class Database:
             infected_people = self._cursor.fetchall()
 
             for infected_person in infected_people:
-                self._cursor.execute('SELECT name FROM positions WHERE name = ? AND position = ? AND date = ?', (str(infected_person), position, date))
+                self._cursor.execute('SELECT name FROM positions WHERE name = ? AND position = ? AND date = ?',
+                                     (str(infected_person), position, date))
                 contacts = self._cursor.fetchall()
                 if contacts:
                     self._add_close_contact(infected_person[0], contacts[0], position, date)

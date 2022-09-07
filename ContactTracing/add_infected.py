@@ -100,3 +100,19 @@ class AddInfected:
         messages = self._message_queue
         self._message_queue = []
         return messages
+
+    def get_all_names(self):
+        '''
+        Returns all the names in the message queue and clears it
+        :return:
+        '''
+
+        self.publish_query('names')
+
+        message = []
+        while not message:
+            message = self.retrieve_messages()
+
+        message = [msg.upper() for msg in message]
+
+        return message

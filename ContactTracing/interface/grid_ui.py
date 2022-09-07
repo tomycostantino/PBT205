@@ -1,10 +1,11 @@
 # Tomas Costantino - A00042881
 import tkinter as tk
 import tkmacosx as tkmac
+from threading import Thread
 from grid import Grid
-from interface.autocomplete_widget import Autocomplete
 from interface.styling import *
 from interface.geometry import *
+from ttkwidgets.autocomplete import AutocompleteCombobox
 
 
 class GridUI(tk.Toplevel):
@@ -15,6 +16,8 @@ class GridUI(tk.Toplevel):
         self.geometry(GRID_WINDOW)
 
         self._grid = Grid()
+
+        Thread(target=self._get_all_names, daemon=True).start()
 
         # Create frames to split UI
         upper_frame = tk.Frame(self)
@@ -28,11 +31,18 @@ class GridUI(tk.Toplevel):
         label.pack(side=tk.TOP, expand=False, anchor='center')
 
         # Grid widgets
-        grid_name = tk.Text(upper_frame, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
-        grid_name.pack(side=tk.TOP)
+        self._grid_name = AutocompleteCombobox(
+            upper_frame,
+            width=30,
+            foreground=TEXTBOX_FG,
+            justify=tk.CENTER,
+            background=TEXTBOX_BG,
+            font=TEXTBOX,
+        )
+        self._grid_name.pack(side=tk.TOP)
 
         # When the button is pressed it will send the data to the tracker and wait for a response
-        submit_button = tkmac.Button(upper_frame, text='Submit', command=lambda: self._submit(grid_name))
+        submit_button = tkmac.Button(upper_frame, text='Submit', command=lambda: self._submit(self._grid_name))
         submit_button.pack(side=tk.TOP, anchor='center')
 
         self._canvas = tk.Canvas(lower_frame, width=500, height=500)
@@ -44,14 +54,15 @@ class GridUI(tk.Toplevel):
         self._user_data = []
         self._buttons = []
 
-    def _submit(self, grid_name: tk.Text):
-        self._grid.publish_query(grid_name.get('1.0', 'end-1c'))
+    def _submit(self, grid_name):
+        self._grid.publish_query(grid_name.get())
+        grid_name.delete(0, 'end')
 
         data = []
         while not data:
             data = self._grid.retrieve_messages()
 
-        self.draw_grid(10, 10, data, grid_name.get('1.0', 'end-1c'))
+        self.draw_grid(10, 10, data, grid_name.get().lower())
         grid_name.delete('1.0', 'end')
 
     def _create_canvas(self, n_rows, n_columns, data):
@@ -126,4 +137,8 @@ class GridUI(tk.Toplevel):
         '''
         self.master.deiconify()
         self.destroy()
+
+    def _get_all_names(self):
+        names = self._grid.get_all_names()
+        self._grid_name.set_completion_list(names)
 

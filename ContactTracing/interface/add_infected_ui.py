@@ -2,10 +2,11 @@ import tkinter as tk
 import tkmacosx as tkmac
 import tkinter.messagebox
 from add_infected import AddInfected
-from interface.autocomplete_widget import Autocomplete
 from interface.styling import *
 from interface.geometry import *
 from datetime import datetime
+from threading import Thread
+from ttkwidgets.autocomplete import AutocompleteCombobox
 
 
 class AddInfectedUI(tk.Toplevel):
@@ -18,11 +19,20 @@ class AddInfectedUI(tk.Toplevel):
 
         self._add_infected = AddInfected()
 
+        Thread(target=self._get_all_names, daemon=True).start()
+
         label = tk.Label(self, text='Please enter name of the person\n you want to mark as infected:',
                          fg='black', font=LABEL)
         label.pack(side=tk.TOP, expand=False, anchor='center')
 
-        self._full_name = tk.Text(self, height=3, width=30, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
+        self._full_name = AutocompleteCombobox(
+            self,
+            width=30,
+            foreground=TEXTBOX_FG,
+            justify=tk.CENTER,
+            background=TEXTBOX_BG,
+            font=TEXTBOX,
+        )
         self._full_name.pack(side=tk.TOP)
 
         label = tk.Label(self, text='Insert the infected date dd/mm/yyyy \n'
@@ -33,13 +43,14 @@ class AddInfectedUI(tk.Toplevel):
         self._infected_date.pack(side=tk.TOP)
 
         submit_button = tkmac.Button(self, text='Submit',
-                                     command=lambda: self._submit_infected_person(self._full_name.get('1.0', 'end-1c')))
+                                     command=lambda: self._submit_infected_person(self._full_name.get()))
         submit_button.pack(side=tk.TOP, anchor='center')
 
         return_button = tkmac.Button(self, text='Return home', width=150, command=self._back_to_mainmenu)
         return_button.pack(side=tk.TOP, anchor='center')
 
     def _submit_infected_person(self, personId: str):
+        self._full_name.delete(0, 'end')
         if len(personId) == 0:
             tkinter.messagebox.showinfo("Contact Tracing", "Please enter a name")
             return
@@ -54,10 +65,14 @@ class AddInfectedUI(tk.Toplevel):
                 self._add_infected.publish_query(personId, dt[0])
 
             tkinter.messagebox.showinfo("Contact Tracing", "Person successfully added")
-            self._full_name.delete('1.0', 'end-1c')
+            self._full_name.delete(0, 'end')
             self._infected_date.delete('1.0', 'end-1c')
 
     def _back_to_mainmenu(self):
         del self._add_infected
         self.master.deiconify()
         self.destroy()
+
+    def _get_all_names(self):
+        names = self._add_infected.get_all_names()
+        self._full_name.set_completion_list(names)

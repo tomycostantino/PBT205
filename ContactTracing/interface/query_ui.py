@@ -4,9 +4,9 @@ import tkmacosx as tkmac
 import tkinter.messagebox
 from threading import Thread
 from query import Query
-from interface.autocomplete_widget import Autocomplete
 from interface.styling import *
 from interface.geometry import *
+from ttkwidgets.autocomplete import AutocompleteCombobox
 
 
 class QueryUI(tk.Toplevel):
@@ -36,8 +36,14 @@ class QueryUI(tk.Toplevel):
                                                 'person you want to query:', fg='black', font=LABEL)
         name_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
-        self._full_name = Autocomplete([], self._upper_frame, fg=TEXTBOX_FG, justify=tk.CENTER,
-                                           insertbackground=TEXTBOX_FG, bg=TEXTBOX_BG, highlightthickness=False)
+        self._full_name = AutocompleteCombobox(
+            self._upper_frame,
+            width=30,
+            foreground=TEXTBOX_FG,
+            justify=tk.CENTER,
+            background=TEXTBOX_BG,
+            font=TEXTBOX,
+        )
         self._full_name.pack(side=tk.TOP)
 
         # When the button is pressed it will send the data to the tracker and wait for a response
@@ -59,4 +65,4 @@ class QueryUI(tk.Toplevel):
 
     def _get_all_names(self):
         names = self._query.get_all_names()
-        self._full_name.update_symbols(names)
+        self._full_name.set_completion_list(names)

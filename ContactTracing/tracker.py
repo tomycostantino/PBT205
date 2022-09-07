@@ -220,8 +220,10 @@ class Tracker:
 
     def _check_close_contact(self, db: Database, messages: list):
         for message in messages:
-            contact = db.check_for_close_contact(message['personId'].lower(), message['position'], message['date'])
-            self._messaging.send_message(message['personId'].lower(), self._generate_close_contact_message(message)) if contact else None
+            contact = db.check_for_close_contact(message['personId'].lower(), message['contact'], message['position'],
+                                                 message['date'])
+            self._messaging.send_message(message['personId'].lower(), self._generate_close_contact_message(message))\
+                if contact else None
 
     def _generate_close_contact_message(self, message: dict) -> str:
         '''
