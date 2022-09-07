@@ -25,7 +25,7 @@ class AddInfectedUI(tk.Toplevel):
                          fg='black', font=LABEL)
         label.pack(side=tk.TOP, expand=False, anchor='center')
 
-        self._full_name = AutocompleteCombobox(
+        self._name_box = AutocompleteCombobox(
             self,
             width=30,
             foreground=TEXTBOX_FG,
@@ -33,7 +33,7 @@ class AddInfectedUI(tk.Toplevel):
             background=TEXTBOX_BG,
             font=TEXTBOX,
         )
-        self._full_name.pack(side=tk.TOP)
+        self._name_box.pack(side=tk.TOP)
 
         label = tk.Label(self, text='Insert the infected date dd/mm/yyyy \n'
                                     'Leave in blank for today', fg='black', font=LABEL)
@@ -43,15 +43,14 @@ class AddInfectedUI(tk.Toplevel):
         self._infected_date.pack(side=tk.TOP)
 
         submit_button = tkmac.Button(self, text='Submit',
-                                     command=lambda: self._submit_infected_person(self._full_name.get()))
+                                     command=self._submit_infected_person)
         submit_button.pack(side=tk.TOP, anchor='center')
 
         return_button = tkmac.Button(self, text='Return home', width=150, command=self._back_to_mainmenu)
         return_button.pack(side=tk.TOP, anchor='center')
 
-    def _submit_infected_person(self, personId: str):
-        self._full_name.delete(0, 'end')
-        if len(personId) == 0:
+    def _submit_infected_person(self):
+        if self._name_box == 0:
             tkinter.messagebox.showinfo("Contact Tracing", "Please enter a name")
             return
 
@@ -62,10 +61,10 @@ class AddInfectedUI(tk.Toplevel):
                 dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
                 # Split date and time to have them separated
                 dt = dt_string.split(' ')
-                self._add_infected.publish_query(personId, dt[0])
+                self._add_infected.publish_query(self._name_box.get(), dt[0])
 
             tkinter.messagebox.showinfo("Contact Tracing", "Person successfully added")
-            self._full_name.delete(0, 'end')
+            self._name_box.delete(0, 'end')
             self._infected_date.delete('1.0', 'end-1c')
 
     def _back_to_mainmenu(self):
@@ -75,4 +74,4 @@ class AddInfectedUI(tk.Toplevel):
 
     def _get_all_names(self):
         names = self._add_infected.get_all_names()
-        self._full_name.set_completion_list(names)
+        self._name_box.set_completion_list(names)

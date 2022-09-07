@@ -31,7 +31,7 @@ class GridUI(tk.Toplevel):
         label.pack(side=tk.TOP, expand=False, anchor='center')
 
         # Grid widgets
-        self._grid_name = AutocompleteCombobox(
+        self._name_box = AutocompleteCombobox(
             upper_frame,
             width=30,
             foreground=TEXTBOX_FG,
@@ -39,10 +39,10 @@ class GridUI(tk.Toplevel):
             background=TEXTBOX_BG,
             font=TEXTBOX,
         )
-        self._grid_name.pack(side=tk.TOP)
+        self._name_box.pack(side=tk.TOP)
 
         # When the button is pressed it will send the data to the tracker and wait for a response
-        submit_button = tkmac.Button(upper_frame, text='Submit', command=lambda: self._submit(self._grid_name))
+        submit_button = tkmac.Button(upper_frame, text='Submit', command=self._submit)
         submit_button.pack(side=tk.TOP, anchor='center')
 
         self._canvas = tk.Canvas(lower_frame, width=500, height=500)
@@ -54,23 +54,25 @@ class GridUI(tk.Toplevel):
         self._user_data = []
         self._buttons = []
 
-    def _submit(self, grid_name):
-        self._grid.publish_query(grid_name.get())
-        grid_name.delete(0, 'end')
+    def _submit(self):
+        self._grid.publish_query(self._name_box.get().lower())
 
         data = []
         while not data:
             data = self._grid.retrieve_messages()
 
-        self.draw_grid(10, 10, data, grid_name.get().lower())
-        grid_name.delete('1.0', 'end')
+        self.draw_grid(10, 10, data, self._name_box.get().lower())
+        self._name_box.delete(0, 'end')
 
     def _create_canvas(self, n_rows, n_columns, data):
         # Draw the canvas grid with the buttons in it
         self._user_data = data
 
         # Lists of positions that are close contacts
-        to_color = [tuple(map(int, color['position'].split(', '))) for color in self._user_data]
+        if data[0] == 'error':
+            to_color = ()
+        else:
+            to_color = [tuple(map(int, color['position'].split(', '))) for color in self._user_data]
         idx = 0
         for i in range(1, n_rows + 1):
             # Draw rows
@@ -140,5 +142,5 @@ class GridUI(tk.Toplevel):
 
     def _get_all_names(self):
         names = self._grid.get_all_names()
-        self._grid_name.set_completion_list(names)
+        self._name_box.set_completion_list(names)
 
