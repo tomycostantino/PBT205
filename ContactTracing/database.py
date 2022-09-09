@@ -179,6 +179,16 @@ class Database:
         self._cursor.execute("DELETE FROM currently_infected_people WHERE name = ?", (personId,))
         self._conn.commit()
 
+
+    def retrieve_close_contacts_names(self) -> typing.List[dict]:
+        '''
+        Retrieve the names of the close contacts
+        :return:
+        '''
+        self._cursor.execute('SELECT infected_person, contact FROM close_contacts')
+        close_contacts = self._cursor.fetchall()
+        return [row for row in close_contacts]
+
     def close(self):
         '''
         Close the connection to the database

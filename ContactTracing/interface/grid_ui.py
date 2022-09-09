@@ -14,6 +14,7 @@ class GridUI(tk.Toplevel):
         super().__init__(*args, **kwargs)
 
         self.geometry(GRID_WINDOW)
+        self.title('Grid')
 
         self._grid = Grid()
 
@@ -27,7 +28,7 @@ class GridUI(tk.Toplevel):
         lower_frame.pack(side=tk.TOP, expand=True, fill='both')
 
         # Title
-        label = tk.Label(upper_frame, text='You are in Grid mode', fg='black', font=HEADER)
+        label = tk.Label(upper_frame, text='Close contacts grid', fg='black', font=HEADER)
         label.pack(side=tk.TOP, expand=False, anchor='center')
 
         # Grid widgets

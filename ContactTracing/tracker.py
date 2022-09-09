@@ -140,6 +140,16 @@ class Tracker:
 
             self._publish_on_queue(message['reply_on'], response)
 
+        elif message['type'] == 'close_contacts_names':
+            db_result = self._retrieve_close_contacts_names()
+
+            if db_result:
+                response = self._create_close_contacts_names_response(db_result)
+            else:
+                response = {'error': 'No results found'}
+
+            self._publish_on_queue(message['reply_on'], response)
+
         elif message['type'] == 'new_infection':
             self._add_infected_person(message['about'], message['date'])
 
@@ -194,6 +204,23 @@ class Tracker:
             positions.append({'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]})
 
         return positions
+
+    def _create_close_contacts_names_response(self, database_rows: list) -> typing.List[str]:
+        '''
+        Create a response for the close contacts names queue
+        :param database_rows:
+        :return:
+        '''
+
+        names = []
+        for name in database_rows:
+            if name[0] not in names:
+                names.append(name[0])
+
+            if name[1] not in names:
+                names.append(name[1])
+
+        return names
 
     '''
     Database functions
@@ -274,6 +301,20 @@ class Tracker:
         del db
 
         return db_result
+
+    def _retrieve_close_contacts_names(self) -> typing.List[dict]:
+        '''
+        Retrieve all the names from the database
+        :return:
+        '''
+
+        db = Database()
+        db_result = db.retrieve_close_contacts_names()
+        db.close()
+        del db
+
+        return db_result
+
 
     def check_if_person_exists(self, table: str, personId: str) -> bool:
         '''

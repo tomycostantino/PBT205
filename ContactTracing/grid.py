@@ -72,7 +72,7 @@ class Grid:
         consumer.queue_declare(self._id)
 
         message = {'from': 'grid',
-                   'type': 'names' if message == 'names' else 'close_contacts',
+                   'type': 'close_contacts_names' if message == 'names' else 'close_contacts',
                    'about': message if message != 'names' else 'all',
                    'reply_on': self._id}
 
