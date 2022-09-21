@@ -37,12 +37,12 @@ class TrackerUI(tk.Toplevel):
         display_grid = tkmac.Button(upper_frame, text='Display grid', width=150, command=self._create_grid_window)
         display_grid.pack(side=tk.TOP, anchor='center')
 
-        query_button = tkmac.Button(upper_frame, text="Query", width=150,
+        query_button = tkmac.Button(upper_frame, text="Search Database", width=150,
                                     command=self._create_query_window)
         query_button.pack(side=tk.TOP, anchor='center')
 
         return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_mainmenu)
-        return_button.pack(side=tk.TOP, anchor='center')
+        return_button.pack(side=tk.TOP, anchor='center', pady=10)
 
     def _create_add_infected_window(self):
         add_infected_ui = AddInfectedUI(self)

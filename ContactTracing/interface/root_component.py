@@ -41,7 +41,7 @@ class RootComponent(tk.Tk):
         tracker_button.pack(side=tk.TOP, anchor='center')
 
         exit_button = tkmac.Button(commands_frame, text='Exit', command=self._on_closing)
-        exit_button.pack(side=tk.TOP, anchor='center')
+        exit_button.pack(side=tk.TOP, anchor='center', pady=10)
 
     def _create_window(self, mode: str):
         # Change interfaces as users interact with the application

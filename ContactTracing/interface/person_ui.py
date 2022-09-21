@@ -72,7 +72,7 @@ class PersonUI(tk.Toplevel):
         '''
         Return home
         '''
-        return_button = tkmac.Button(main_frame, text='Return home', width=130, command=self._back_to_mainmenu)
+        return_button = tkmac.Button(main_frame, text='Exit', width=130, command=self._back_to_mainmenu)
         return_button.pack(side=tk.TOP, anchor='center', pady=30)
 
     def _submit_data(self, full_name: tk.Text, phone_number: tk.Text):
@@ -81,12 +81,6 @@ class PersonUI(tk.Toplevel):
         person_id = person_id[:-1] if person_id.endswith(' ') else person_id
 
         contact_number = phone_number.get('1.0', 'end-1c')
-
-        '''
-        Clear text boxes
-        '''
-        full_name.delete('1.0', 'end-1c')
-        phone_number.delete('1.0', 'end-1c')
 
         '''
         Come back and work on this part later
@@ -101,7 +95,13 @@ class PersonUI(tk.Toplevel):
         '''
         Popup window
         '''
-        tkinter.messagebox.showinfo("Contact Tracing", "Checked in!")
+        tkinter.messagebox.showinfo("Contact Tracing", "Checked in successfully!")
+
+        '''
+        Clear text boxes
+        '''
+        full_name.delete('1.0', 'end-1c')
+        phone_number.delete('1.0', 'end-1c')
 
     def _back_to_mainmenu(self):
         '''

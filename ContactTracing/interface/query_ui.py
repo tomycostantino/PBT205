@@ -28,12 +28,12 @@ class QueryUI(tk.Toplevel):
         lower_frame.pack(side=tk.TOP, expand=True, fill='both')
 
         # Title
-        label = tk.Label(upper_frame, text='You are in Query mode', fg='black', font=HEADER)
+        label = tk.Label(upper_frame, text='Database search mode', fg='black', font=HEADER)
         label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
         # Person widgets
         name_label = tk.Label(upper_frame, text='Please enter name of the \n'
-                                                'person you want to query:', fg='black', font=LABEL)
+                                                'person you want to query:', fg='black', font=SUBHEADER)
         name_label.pack(side=tk.TOP, expand=True, anchor='center', fill='both')
 
         self._name_box = AutocompleteCombobox(
@@ -47,11 +47,11 @@ class QueryUI(tk.Toplevel):
         self._name_box.pack(side=tk.TOP)
 
         # When the button is pressed it will send the data to the tracker and wait for a response
-        submit_button = tkmac.Button(lower_frame, text='Submit', command=self._submit)
+        submit_button = tkmac.Button(lower_frame, text='Get data', width=150, command=self._submit)
         submit_button.pack(side=tk.TOP, anchor='center')
 
         return_button = tkmac.Button(lower_frame, text='Return home', width=150, command=self._back_to_mainmenu)
-        return_button.pack(side=tk.TOP, anchor='center')
+        return_button.pack(side=tk.BOTTOM, anchor='center', pady=10)
 
     def _submit(self):
         tkinter.messagebox.showinfo("Contact Tracing", "Query successfully created")
