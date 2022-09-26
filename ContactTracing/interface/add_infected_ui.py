@@ -7,6 +7,7 @@ from interface.geometry import *
 from datetime import datetime
 from threading import Thread
 from ttkwidgets.autocomplete import AutocompleteCombobox
+from tkcalendar import Calendar
 
 
 class AddInfectedUI(tk.Toplevel):
@@ -35,14 +36,16 @@ class AddInfectedUI(tk.Toplevel):
         )
         self._name_box.pack(side=tk.TOP)
 
-        label = tk.Label(self, text='Insert the infected date dd/mm/yyyy \n'
-                                    'Leave in blank for today', fg='black', font=LABEL)
+        label = tk.Label(self, text='Infected date:', fg='black', font=LABEL)
         label.pack(side=tk.TOP, expand=False, anchor='center')
 
-        self._infected_date = tk.Text(self, height=3, width=20, bg=TEXTBOX_BG, fg=TEXTBOX_FG)
-        self._infected_date.pack(side=tk.TOP)
+        # creating a calendar object
+        self._calendar = Calendar(self, selectmode="day", font=CALENDAR, foreground=TEXTBOX_FG, showweeknumbers=False,
+                                  maxdate=datetime.today(), date_pattern="dd/mm/yyyy")
+        # display on main window
+        self._calendar.pack(side=tk.TOP, pady=20)
 
-        submit_button = tkmac.Button(self, text='Submit',
+        submit_button = tkmac.Button(self, text='Mark as infected',
                                      command=self._submit_infected_person)
         submit_button.pack(side=tk.TOP, anchor='center')
 
@@ -55,17 +58,10 @@ class AddInfectedUI(tk.Toplevel):
             return
 
         else:
-            if self._infected_date.get('1.0', 'end-1c') == '':
-                # Get current time
-                now = datetime.now()
-                dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-                # Split date and time to have them separated
-                dt = dt_string.split(' ')
-                self._add_infected.publish_query(self._name_box.get(), dt[0])
+            self._add_infected.publish_query(self._name_box.get(), self._calendar.get_date())
 
             tkinter.messagebox.showinfo("Contact Tracing", "Person successfully added")
             self._name_box.delete(0, 'end')
-            self._infected_date.delete('1.0', 'end-1c')
 
     def _back_to_mainmenu(self):
         del self._add_infected

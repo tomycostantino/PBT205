@@ -10,6 +10,8 @@ LABEL = ("Arial", 14, "bold")
 
 TEXTBOX = ("Arial", 14)
 
+CALENDAR = ("Arial", 14)
+
 '''
 Widgets
 '''
