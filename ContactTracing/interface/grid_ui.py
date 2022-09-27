@@ -113,9 +113,9 @@ class GridUI(tk.Toplevel):
         self._buttons = []
 
     def _display_info(self, position):
-        popup = tk.Toplevel()
+        popup = tk.Toplevel(self)
         popup.wm_title('Info')
-        popup.geometry('200x200')
+        popup.geometry(GRID_INFO)
 
         p_tuple = tuple(map(int, position.split(', ')))
         index = self._get_position_index(p_tuple)

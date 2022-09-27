@@ -4,6 +4,7 @@ import tkmacosx as tkmac
 import tkinter.messagebox
 from threading import Thread
 from query import Query
+from interface.scrollable_frame import ScrollableFrame
 from interface.styling import *
 from interface.geometry import *
 from ttkwidgets.autocomplete import AutocompleteCombobox
@@ -57,6 +58,7 @@ class QueryUI(tk.Toplevel):
         tkinter.messagebox.showinfo("Contact Tracing", "Query successfully created")
         self._query.publish_query(self._name_box.get().lower())
         self._name_box.delete(0, 'end')
+        Thread(target=self._receive_data, daemon=True).start()
 
     def _back_to_mainmenu(self):
         del self._query
@@ -67,5 +69,36 @@ class QueryUI(tk.Toplevel):
         names = self._query.get_all_names()
         self._name_box.set_completion_list(names)
 
-    def _display_data(self, data):
-        pass
+    def _receive_data(self):
+        while True:
+            data = self._query.retrieve_messages()
+            if data:
+                print(data)
+                self._display_data(data)
+                break
+
+    def _display_data(self, data: list):
+        popup = tk.Toplevel()
+        popup.wm_title('Positions')
+        popup.geometry(QUERY_SPREADSHEET)
+
+        upper_frame = tk.Frame(popup)
+        upper_frame.pack(side=tk.TOP, anchor='w')
+
+        tk.Label(upper_frame, text='Name', fg='black', font=LABEL, borderwidth=1, border=1).grid(row=0, column=0)
+        tk.Label(upper_frame, text='Position', fg='black', font=LABEL, borderwidth=1, border=1).grid(row=0, column=1)
+        tk.Label(upper_frame, text='Date', fg='black', font=LABEL, borderwidth=1, border=1).grid(row=0, column=2)
+
+        lower_frame = ScrollableFrame(popup, width=230)
+        lower_frame.pack(side=tk.TOP, expand=True)
+
+        row = 1
+
+        for datapoint in data:
+            tk.Label(lower_frame.sub_frame, text=datapoint['personId'], fg='black', font=SUBHEADER).grid(row=row, column=0)
+            tk.Label(lower_frame.sub_frame, text=datapoint['position'], fg='black', font=SUBHEADER).grid(row=row, column=1)
+            tk.Label(lower_frame.sub_frame, text=datapoint['date'], fg='black', font=SUBHEADER).grid(row=row, column=2)
+            row += 1
+
+
+

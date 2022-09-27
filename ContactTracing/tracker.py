@@ -201,7 +201,7 @@ class Tracker:
         positions = []
 
         for row in database_rows:
-            positions.append({'personId': row[0], 'position': row[1], 'date': row[2], 'time': row[3]})
+            positions.append({'personId': row[0], 'position': row[2], 'date': row[3]})
 
         return positions
 
