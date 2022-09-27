@@ -67,7 +67,7 @@ class Query:
 
         message = {'from': 'query',
                    'type': 'names' if message == 'names' else 'positions',
-                   'about': message if message != 'names' else 'all',
+                   'about': message,
                    'reply_on': self._id}
 
         self._publisher.JSON_publish('sent_to_tracker', 'user_data_get', message)

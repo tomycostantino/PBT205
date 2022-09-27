@@ -55,7 +55,7 @@ class QueryUI(tk.Toplevel):
 
     def _submit(self):
         tkinter.messagebox.showinfo("Contact Tracing", "Query successfully created")
-        Thread(target=self._query.publish_query, args=(self._name_box.get().lower())).start()
+        self._query.publish_query(self._name_box.get().lower())
         self._name_box.delete(0, 'end')
 
     def _back_to_mainmenu(self):
@@ -66,3 +66,6 @@ class QueryUI(tk.Toplevel):
     def _get_all_names(self):
         names = self._query.get_all_names()
         self._name_box.set_completion_list(names)
+
+    def _display_data(self, data):
+        pass

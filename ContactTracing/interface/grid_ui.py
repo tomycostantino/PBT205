@@ -43,7 +43,7 @@ class GridUI(tk.Toplevel):
         self._name_box.pack(side=tk.TOP)
 
         # When the button is pressed it will send the data to the tracker and wait for a response
-        submit_button = tkmac.Button(upper_frame, text='Submit', command=self._submit)
+        submit_button = tkmac.Button(upper_frame, text='Display', command=self._submit)
         submit_button.pack(side=tk.TOP, anchor='center')
 
         self._canvas = tk.Canvas(lower_frame, width=500, height=500)

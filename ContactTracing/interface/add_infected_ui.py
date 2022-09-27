@@ -50,7 +50,7 @@ class AddInfectedUI(tk.Toplevel):
         submit_button.pack(side=tk.TOP, anchor='center')
 
         return_button = tkmac.Button(self, text='Return home', width=150, command=self._back_to_mainmenu)
-        return_button.pack(side=tk.TOP, anchor='center')
+        return_button.pack(side=tk.TOP, anchor='center', pady=15)
 
     def _submit_infected_person(self):
         if self._name_box == 0:
