@@ -1,12 +1,12 @@
 # Download the helper library from https://www.twilio.com/docs/python/install
 import os
 from twilio.rest import Client
-
+from api_keys import *
 
 # Find your Account SID and Auth Token at twilio.com/console
 # and set the environment variables. See http://twil.io/secure
-account_sid = 'AC2f741f65a1d60acbbc8029778fe1beb2'
-auth_token = '4ad347ac5f469e06cdfd0a7667805ce9'
+account_sid = account_sid
+auth_token = auth_token
 client = Client(account_sid, auth_token)
 
 message = client.messages \

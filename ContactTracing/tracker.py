@@ -5,7 +5,7 @@ import threading
 from threading import Thread
 from database import Database
 from message_broker import MessageBroker
-from messaging import Messaging
+from twilio_messaging import Messaging
 
 logger = logging.getLogger()
 
@@ -249,7 +249,7 @@ class Tracker:
         for message in messages:
             contact = db.check_for_close_contact(message['personId'].lower(), message['contact'], message['position'],
                                                  message['date'])
-            self._messaging.send_message(message['personId'].lower(), self._generate_close_contact_message(message))\
+            self._messaging.send_message(message['contact'].lower(), self._generate_close_contact_message(message))\
                 if contact else None
 
     def _generate_close_contact_message(self, message: dict) -> str:

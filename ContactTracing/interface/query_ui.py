@@ -73,7 +73,6 @@ class QueryUI(tk.Toplevel):
         while True:
             data = self._query.retrieve_messages()
             if data:
-                print(data)
                 self._display_data(data)
                 break
 
