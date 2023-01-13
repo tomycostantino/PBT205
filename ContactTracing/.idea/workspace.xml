@@ -5,31 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e5b9ad3-654a-455d-b0b5-e10208b77d77" name="Changes" comment="messaging changed to twilio">
-      <change afterPath="$PROJECT_DIR$/modules/twilio/twilio_account_details.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ContactTracing.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/main.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/add_infected.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/add_infected.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/add_infected.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/database.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/grid.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/add_infected_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/add_infected_ui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/grid_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/grid_ui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interface/person_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/person_ui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/message_broker.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/message_broker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/query_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/query_ui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/root_component.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/root_component.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/message_broker.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/messaging.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/person.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/person.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/query.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/query.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/add_infected.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/add_infected.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/grid.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/grid.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/person.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/person.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/query.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/query.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/twilio/twilio_messaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/twilio/twilio_messaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/person.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/query.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sms.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sms_database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/sms_database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tracker.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/tracker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/twilio_messaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/twilio/twilio_messaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sms_database.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracker.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/twilio_messaging.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
